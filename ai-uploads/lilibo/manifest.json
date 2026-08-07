@@ -1,0 +1,26 @@
+{
+  "sdkVersion": "1.0",
+  "id": "live.onair",
+  "name": "粒粒bo",
+  "version": "1.0.0",
+  "author": "你的名字",
+  "description": "沉浸式模拟直播间：可以看TA开直播（弹幕互动、送礼、语音回应），也可以自己开播、打字互动；有个人主页可查看钱包、粉丝列表，还能进粉丝群聊天和管理成员。",
+  "icon": "icon.jpg",
+  "entry": "index.html",
+  "permissions": [
+    "app.data.read",
+    "app.data.write",
+    "user.profile.read",
+    "characters.read",
+    "ai.generate",
+    "voice.tts",
+    "media.pick",
+    "wallet.read",
+    "wallet.pay"
+  ],
+  "resources": {
+    "presets": [
+      "presets.json"
+    ]
+  }
+}
