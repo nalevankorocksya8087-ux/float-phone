@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>心动小屋 Pro</title>
+<style>
+  :root{
+    --bg-canvas:#FFFDFB;
+    --glass-a:rgba(255,255,255,0.68);
+    --glass-b:rgba(255,255,255,0.34);
+    --glass-border:rgba(255,255,255,0.75);
+    --pink-tint:#FFF4F7;
+    --pink-soft:#FFE6ED;
+    --pink-accent:#FFB4C9;
+    --mint-tint:#F2FBF8;
+    --mint-soft:#DEF5EC;
+    --lav-tint:#F8F4FC;
+    --lav-soft:#ECE1F7;
+    --vanilla-tint:#FFFAF1;
+    --vanilla-soft:#FFEFD8;
+    --text-main:#6E5A63;
+    --text-sub:#A8969E;
+    --text-faint:#C9BCC2;
+    --shadow-warm: 210,190,197;
+    --radius-lg:28px;
+    --radius-md:20px;
+    --radius-sm:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{
+    width:100%; min-height:100%; margin:0;
+    font-family:"PingFang SC","Helvetica Neue",-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg-canvas); color:var(--text-main);
+    overscroll-behavior:none;
+  }
+  button, input, textarea{font:inherit; border:none; background:none;}
+  button{cursor:pointer;}
+
+  .app{ position:relative; min-height:100dvh; }
+  .wallpaper{
+    position:fixed; inset:0; z-index:0;
+    background-size:cover; background-position:top center;
+    opacity:0.26; transition:background-image .3s ease;
+  }
+  .wallpaper::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(255,253,251,0.55) 0%, rgba(255,253,251,0.86) 40%, rgba(255,253,251,0.97) 100%);
+  }
+  .view{
+    display:none;
+    position:relative; z-index:1;
+    padding: var(--ai-phone-app-safe-top, 60px) 16px 96px;
+    min-height:100dvh;
+  }
+  .view.active{ display:block; }
+
+  .glass-card{
+    background:linear-gradient(150deg, var(--glass-a), var(--glass-b));
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius-lg);
+    box-shadow: 0 12px 28px rgba(var(--shadow-warm),0.16), inset 0 1px 1px rgba(255,255,255,0.7);
+    padding:18px 18px 20px; margin-bottom:16px; position:relative; overflow:hidden;
+  }
+  .neo-chip{
+    background:var(--bg-canvas); border-radius:999px; padding:8px 16px; font-size:13px;
+    color:var(--text-sub);
+    box-shadow:4px 4px 10px rgba(var(--shadow-warm),0.22), -4px -4px 10px rgba(255,255,255,0.9);
+    transition:all .25s ease; display:inline-flex; align-items:center; gap:6px;
+  }
+  .neo-chip.active{
+    color:#B5657E; font-weight:600;
+    box-shadow:inset 3px 3px 7px rgba(var(--shadow-warm),0.28), inset -3px -3px 7px rgba(255,255,255,0.85);
+    background:var(--pink-tint);
+  }
+  .neo-btn{
+    background:var(--bg-canvas); border-radius:var(--radius-sm);
+    box-shadow:5px 5px 12px rgba(var(--shadow-warm),0.22), -5px -5px 12px rgba(255,255,255,0.9);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .neo-btn:active{
+    transform:scale(0.97);
+    box-shadow:inset 3px 3px 8px rgba(var(--shadow-warm),0.25), inset -3px -3px 8px rgba(255,255,255,0.85);
+  }
+  .eyebrow{ font-size:11px; letter-spacing:.06em; color:var(--text-sub); display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+  .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--pink-accent);}
+  .decor-corner{ position:absolute; width:46px; opacity:0.85; pointer-events:none; }
+  .float-deco{ animation:floatY 3.4s ease-in-out infinite; }
+  @keyframes floatY{ 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-6px) rotate(-3deg);} }
+
+  .home-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .home-title{ font-size:22px; font-weight:700; display:flex; align-items:center; gap:8px;}
+  .home-title img{width:26px;height:26px;}
+  .day-badge{ font-size:12px; color:#B5657E; background:var(--pink-soft); padding:6px 12px; border-radius:999px; font-weight:600; }
+  .config-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+  .config-item{ background:rgba(255,255,255,0.55); border-radius:16px; padding:10px 12px; display:flex; flex-direction:column; gap:2px; }
+  .config-item .k{font-size:11px; color:var(--text-sub);}
+  .config-item .v{font-size:14px; font-weight:600; color:var(--text-main);}
+  .day-track{ display:flex; justify-content:space-between; margin:14px 0 12px; }
+  .day-dot{ width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--text-faint); background:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.8); }
+  .day-dot.done{ background:var(--mint-soft); color:#5FA98A; }
+  .day-dot.current{ background:var(--pink-accent); color:#fff; font-weight:700; box-shadow:0 0 0 4px var(--pink-soft); }
+  .step-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
+  .step-row{ display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-sub); padding:8px 10px; border-radius:12px; background:rgba(255,255,255,0.4); }
+  .step-row.active{ color:var(--text-main); font-weight:600; background:var(--pink-tint);}
+  .step-check{ width:16px;height:16px;border-radius:50%; border:1.5px solid var(--pink-accent); flex:none; }
+  .step-row.active .step-check{ background:var(--pink-accent); }
+  .next-day-btn{ width:100%; padding:13px; text-align:center; font-size:14px; font-weight:700; color:#B5657E; border-radius:999px; margin-top:4px; }
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .chip-row + .chip-row{ margin-top:8px; }
+  .setting-summary{ margin-top:12px; font-size:12.5px; color:var(--text-sub); background:var(--lav-tint); border-radius:14px; padding:10px 12px; line-height:1.6; }
+  .cat-icon{ width:18px; height:18px; }
+  .guest-card{ display:flex; gap:14px; align-items:center; }
+  .guest-portrait{ width:84px; height:84px; border-radius:22px; background:radial-gradient(circle at 30% 20%, var(--vanilla-soft), var(--pink-soft) 70%); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; flex:none; }
+  .guest-portrait img{ position:absolute; width:120%; opacity:0.9; }
+  .guest-info .name{ font-size:16px; font-weight:700; }
+  .guest-info .desc{ font-size:12.5px; color:var(--text-sub); margin-top:3px; line-height:1.5;}
+  .tag-mini{ display:inline-block; font-size:11px; color:#B5657E; background:var(--pink-soft); padding:2px 8px; border-radius:999px; margin-top:6px; margin-right:4px; }
+  .event-text{ font-size:13.5px; line-height:1.7; color:var(--text-main); }
+  .card-toolbar{ display:flex; justify-content:flex-end; gap:8px; margin-top:10px;}
+  .icon-btn{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.6); color:var(--text-sub); font-size:15px; }
+  .sms-preview{ display:flex; gap:10px; overflow-x:auto; padding:4px 2px 6px; scrollbar-width:none; }
+  .sms-preview::-webkit-scrollbar{ display:none; }
+  .sticker-chip{ flex:none; width:64px; text-align:center; }
+  .sticker-chip img{ width:56px; height:56px; border-radius:16px; background:rgba(255,255,255,0.5); padding:4px; }
+  .sticker-chip .mood{ font-size:10.5px; color:var(--text-sub); margin-top:4px; }
+  .rank-row{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .rank-no{ font-size:13px; font-weight:700; color:var(--pink-accent); width:16px;}
+  .rank-bar-bg{ flex:1; height:8px; border-radius:999px; background:rgba(255,255,255,0.5); overflow:hidden;}
+  .rank-bar-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg, var(--pink-accent), var(--lav-soft)); }
+  .rank-pct{ font-size:12px; color:var(--text-sub); width:34px; text-align:right;}
+
+  .page-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .page-title{ font-size:22px; font-weight:700; }
+  .roster{ display:flex; gap:12px; overflow-x:auto; padding:4px 2px 8px; scrollbar-width:none; }
+  .roster::-webkit-scrollbar{ display:none; }
+  .roster-item{ flex:none; width:72px; text-align:center; }
+  .roster-avatar{ width:64px; height:64px; border-radius:20px; position:relative; background:radial-gradient(circle at 30% 20%, var(--vanilla-soft), var(--pink-soft) 70%); display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px solid transparent; }
+  .roster-item.selected .roster-avatar{ border-color:var(--pink-accent); }
+  .roster-avatar img{ width:110%; }
+  .roster-name{ font-size:11.5px; margin-top:6px; color:var(--text-sub); }
+  .roster-item.selected .roster-name{ color:var(--text-main); font-weight:600; }
+  .roster-add{ width:64px; height:64px; border-radius:20px; background:var(--bg-canvas); box-shadow:5px 5px 12px rgba(var(--shadow-warm),0.22), -5px -5px 12px rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--pink-accent); }
+  .avatar-upload-row{ display:flex; align-items:center; gap:16px; margin-bottom:6px; }
+  .avatar-upload{ width:88px; height:88px; border-radius:26px; position:relative; flex:none; background:radial-gradient(circle at 30% 20%, var(--vanilla-soft), var(--pink-soft) 70%); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .avatar-upload img{ width:115%; position:absolute; }
+  .avatar-upload .cam{ position:absolute; right:2px; bottom:2px; width:28px; height:28px; border-radius:50%; background:var(--bg-canvas); box-shadow:3px 3px 8px rgba(var(--shadow-warm),0.25), -3px -3px 8px rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center; font-size:13px; color:#B5657E; }
+  .avatar-hint{ font-size:12px; color:var(--text-sub); line-height:1.6; }
+  .avatar-hint b{ color:#B5657E; }
+  .sync-list{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .sync-pill{ font-size:10.5px; color:var(--text-sub); background:rgba(255,255,255,0.55); border-radius:999px; padding:3px 9px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12.5px; color:var(--text-sub); margin-bottom:6px; }
+  .field input[type=text], .field textarea{ width:100%; background:rgba(255,255,255,0.55); border-radius:14px; padding:11px 13px; font-size:14px; color:var(--text-main); box-shadow: inset 2px 2px 6px rgba(var(--shadow-warm),0.12); }
+  .field textarea{ min-height:72px; resize:none; line-height:1.6; }
+  .field input::placeholder, .field textarea::placeholder{ color:var(--text-faint); }
+  .inherit-note{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-sub); background:var(--lav-tint); border-radius:14px; padding:10px 12px; margin-top:4px; }
+  .inherit-note b{ color:var(--text-main); }
+  .save-btn{ width:100%; padding:14px; text-align:center; margin-top:6px; border-radius:999px; font-size:14.5px; font-weight:700; color:#fff; background:linear-gradient(135deg, #FFB4C9, #E6A9DE); box-shadow:0 10px 22px rgba(255,180,201,0.35); }
+  .save-btn:active{ transform:scale(0.98); }
+
+  .back-btn{
+    width:36px;height:36px;border-radius:50%; background:var(--bg-canvas);
+    box-shadow:4px 4px 10px rgba(var(--shadow-warm),0.22), -4px -4px 10px rgba(255,255,255,0.9);
+    display:flex;align-items:center;justify-content:center; color:var(--text-sub); font-size:18px;
+  }
+
+  /* ===== 工坊：多层子屏 ===== */
+  .wf-screen{ display:none; }
+  .wf-screen.active{ display:block; }
+  .wf-quick-btn{ width:100%; padding:12px; text-align:center; font-size:13.5px; color:#B5657E; font-weight:600; margin-bottom:14px; }
+  .wf-roster-list{ display:flex; flex-direction:column; gap:8px; }
+  .wf-roster-row{ display:flex; align-items:center; gap:12px; padding:8px; border-radius:16px; background:rgba(255,255,255,0.4); }
+  .roster-avatar.sm{ width:48px; height:48px; border-radius:16px; flex:none; position:relative; overflow:hidden; background:radial-gradient(circle at 30% 20%, var(--vanilla-soft), var(--pink-soft) 70%); display:flex; align-items:center; justify-content:center; }
+  .roster-avatar.sm img{ width:110%; }
+  .wf-roster-info{ flex:1; min-width:0; }
+  .wf-roster-name{ font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .lead-badge{ font-size:10px; font-weight:600; color:#fff; background:var(--pink-accent); padding:2px 7px; border-radius:999px; }
+  .wf-roster-tags{ font-size:11.5px; color:var(--text-sub); margin-top:2px; }
+  .wf-del-btn{ width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--text-faint); flex:none; }
+  .wf-add-btn{ width:100%; padding:12px; text-align:center; font-size:13.5px; color:#B5657E; font-weight:600; margin-top:12px; }
+
+  .wf-detail-hero{ text-align:center; padding-top:22px; }
+  .guest-portrait.lg{ width:104px; height:104px; border-radius:28px; margin:0 auto 12px; background:radial-gradient(circle at 30% 20%, var(--vanilla-soft), var(--pink-soft) 70%); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  .guest-portrait.lg img{ position:absolute; width:120%; }
+  .wf-detail-name{ font-size:18px; font-weight:700; }
+  .wf-detail-tags{ margin-top:6px; margin-bottom:14px; }
+  .wf-lead-btn{ padding:10px 20px; font-size:13px; color:var(--text-sub); border-radius:999px; }
+  .wf-lead-btn.active{ color:#B5657E; font-weight:700; background:var(--pink-tint); box-shadow:inset 3px 3px 7px rgba(var(--shadow-warm),0.28), inset -3px -3px 7px rgba(255,255,255,0.85); }
+
+  .wf-entry-list{ padding:6px 10px; }
+  .wf-entry-row{ display:flex; align-items:center; justify-content:space-between; padding:13px 6px; border-bottom:1px solid rgba(255,255,255,0.55); }
+  .wf-entry-row:last-child{ border-bottom:none; }
+  .wf-entry-t{ font-size:14px; font-weight:600; }
+  .wf-entry-s{ font-size:11.5px; color:var(--text-sub); margin-top:2px; }
+  .wf-entry-r{ font-size:18px; color:var(--text-faint); }
+
+  .wf-ai-row{ display:flex; gap:10px; }
+  .wf-ai-btn{ flex:1; padding:12px; text-align:center; font-size:13px; color:var(--text-sub); }
+  .wf-ai-btn.primary{ color:#fff; background:linear-gradient(135deg, #FFB4C9, #E6A9DE); box-shadow:0 8px 18px rgba(255,180,201,0.35); }
+  .wf-delete-link{ display:block; width:100%; text-align:center; padding:10px; font-size:12.5px; color:var(--text-faint); }
+
+  .wf-portrait-preview{ width:100%; aspect-ratio:2/3; max-width:220px; margin:0 auto; border-radius:22px; overflow:hidden; position:relative; background:radial-gradient(circle at 30% 20%, var(--vanilla-soft), var(--pink-soft) 70%); }
+  .wf-portrait-preview img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .wf-upload-btn{ width:100%; padding:12px; text-align:center; font-size:13.5px; color:#B5657E; font-weight:600; margin-top:14px; }
+
+  .wf-custom-tag{ position:relative; padding-right:26px !important; }
+  .wf-tag-x{ position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:13px; color:inherit; line-height:1; }
+
+  /* ===== 工坊：世界观切换 ===== */
+  .wf-worldview-bar{ padding:0; overflow:visible; }
+  .wf-wv-current{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; cursor:pointer; }
+  .wf-wv-label{ font-size:10.5px; color:var(--text-sub); }
+  .wf-wv-name{ font-size:16px; font-weight:700; margin-top:2px; }
+  .wf-wv-desc{ font-size:11.5px; color:var(--text-sub); margin-top:3px; }
+  .wf-wv-chevron{ font-size:14px; color:var(--text-sub); transition:transform .25s ease; flex:none; margin-left:10px; }
+  .wf-worldview-bar.open .wf-wv-chevron{ transform:rotate(180deg); }
+  .wf-wv-dropdown{ display:none; padding:0 16px 16px; }
+  .wf-worldview-bar.open .wf-wv-dropdown{ display:block; }
+  .wf-wv-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  .wf-wv-row{ display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,0.45); }
+  .wf-wv-row.current{ background:var(--pink-tint); }
+  .wf-wv-row-info{ flex:1; min-width:0; }
+  .wf-wv-row-name{ font-size:13.5px; font-weight:600; }
+  .wf-wv-row-desc{ font-size:11px; color:var(--text-sub); margin-top:2px; line-height:1.4; }
+  .wf-wv-row-actions{ display:flex; gap:4px; flex:none; }
+  .wf-icon-btn{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--text-sub); }
+
+  /* ===== 工坊：角色分组 ===== */
+  .wf-manage-toggle{ margin-left:auto; font-size:11px; color:#B5657E; font-weight:600; }
+  .wf-group-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .wf-group-chip{ display:inline-flex; align-items:center; gap:6px; background:var(--bg-canvas); border-radius:999px; padding:7px 14px; font-size:12.5px; color:var(--text-sub);
+    box-shadow:4px 4px 10px rgba(var(--shadow-warm),0.22), -4px -4px 10px rgba(255,255,255,0.9); }
+  .wf-group-chip.active{ color:#B5657E; font-weight:700; background:var(--pink-tint); box-shadow:inset 3px 3px 7px rgba(var(--shadow-warm),0.28), inset -3px -3px 7px rgba(255,255,255,0.85); }
+  .wf-group-chip .wf-tag-x{ position:static; transform:none; }
+
+  /* ===== 工坊：行为状态 & 详情世界观行 ===== */
+  .wf-detail-wv{ font-size:11.5px; color:var(--text-sub); margin-top:2px; margin-bottom:8px; }
+  .role-pill{ font-size:10px; font-weight:600; padding:2px 8px; border-radius:999px; margin-left:6px; }
+  .role-pill.dominant{ color:#B5657E; background:var(--pink-soft); }
+  .role-pill.passive{ color:#6A8FB5; background:var(--lav-soft); }
+  .role-pill.flexible{ color:#5FA98A; background:var(--mint-soft); }
+
+  .placeholder-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:80px 20px; color:var(--text-sub); }
+  .placeholder-wrap img{ width:72px; opacity:.8; margin-bottom:14px; }
+  .placeholder-wrap .t{ font-size:15px; font-weight:600; color:var(--text-main); margin-bottom:4px;}
+  .placeholder-wrap .s{ font-size:12.5px; }
+
+  .bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:5;
+    padding: 10px 14px calc(14px + var(--ai-phone-app-safe-bottom, 10px));
+    background:linear-gradient(180deg, rgba(255,253,251,0) 0%, rgba(255,253,251,0.92) 30%, #FFFDFB 60%);
+  }
+  .nav-track{
+    display:flex; gap:6px; overflow-x:auto; scrollbar-width:none;
+    background:var(--glass-a); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+    border:1px solid var(--glass-border); border-radius:24px; padding:8px;
+    box-shadow:0 10px 24px rgba(var(--shadow-warm),0.18);
+  }
+  .nav-track::-webkit-scrollbar{ display:none; }
+  .nav-item{ flex:none; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 12px; border-radius:16px; min-width:52px; color:var(--text-sub); font-size:10.5px; }
+  .nav-item.active{ color:#B5657E; background:var(--pink-tint); font-weight:600; }
+  .nav-item svg{ width:20px; height:20px; }
+
+  .heart-pop{ position:fixed; z-index:50; pointer-events:none; font-size:20px; animation: heartFloat 900ms ease-out forwards; }
+  @keyframes heartFloat{ 0%{ transform:translate(-50%,-50%) scale(0.4); opacity:0; } 15%{ opacity:1; } 100%{ transform:translate(-50%,-160%) scale(1.15); opacity:0; } }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="wallpaper" id="wallpaper" style="background-image:url('assets/wallpapers/wallpaper-01.jpg')"></div>
+
+  <section class="view active" id="view-心动">
+    <div class="home-header">
+      <div class="home-title"><img src="assets/pink-cat/cat-05.png" alt="">心动小屋</div>
+      <div class="day-badge">Day 3 · 第一次约会日</div>
+    </div>
+
+    <div class="glass-card">
+      <img class="decor-corner float-deco" style="top:-10px; right:-6px;" src="assets/decor/decor-13.png" alt="">
+      <div class="eyebrow"><span class="dot"></span>当前配置总览</div>
+      <div class="config-grid">
+        <div class="config-item"><span class="k">关系设定</span><span class="v">男男 · 年上</span></div>
+        <div class="config-item"><span class="k">世界观</span><span class="v">现代都市</span></div>
+        <div class="config-item"><span class="k">当前主嘉宾</span><span class="v">江唯</span></div>
+        <div class="config-item"><span class="k">赛季进度</span><span class="v">Day 3 / 7</span></div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="eyebrow"><span class="dot"></span>七日流程推进器</div>
+      <div class="day-track">
+        <div class="day-dot done">1</div><div class="day-dot done">2</div><div class="day-dot current">3</div>
+        <div class="day-dot">4</div><div class="day-dot">5</div><div class="day-dot">6</div><div class="day-dot">7</div>
+      </div>
+      <div class="step-list">
+        <div class="step-row"><span class="step-check"></span>公布约会任务</div>
+        <div class="step-row active"><span class="step-check"></span>第一次双人约会</div>
+        <div class="step-row"><span class="step-check"></span>留守小屋观察</div>
+        <div class="step-row"><span class="step-check"></span>第三次心动短信</div>
+        <div class="step-row"><span class="step-check"></span>频道与榜单更新</div>
+      </div>
+      <button class="neo-btn next-day-btn">完成今日流程 · 进入 Day 4</button>
+    </div>
+
+    <div class="glass-card">
+      <div class="eyebrow"><span class="dot"></span>关系设定 · 世界观</div>
+      <div class="chip-row">
+        <button class="neo-chip">男女</button>
+        <button class="neo-chip active"><img class="cat-icon" src="assets/pink-cat/cat-11.png" alt="">男男</button>
+        <button class="neo-chip">女女</button>
+        <button class="neo-chip">女攻男受</button>
+      </div>
+      <div class="chip-row">
+        <button class="neo-chip active">年上</button><button class="neo-chip">年下</button>
+        <button class="neo-chip">双强</button><button class="neo-chip">纯爱慢热</button>
+      </div>
+      <div class="chip-row">
+        <button class="neo-chip">现代都市</button><button class="neo-chip">ABO</button>
+        <button class="neo-chip">古代架空</button><button class="neo-chip">哨向</button>
+      </div>
+      <div class="setting-summary">当前为 <b>男男 · 年上</b> 设定，AI 将严格保持男性代词与年上语气基调，多角色同场时自动锚定发言归属。</div>
+    </div>
+
+    <div class="glass-card">
+      <div class="eyebrow"><span class="dot"></span>今日心动对象</div>
+      <div class="guest-card">
+        <div class="guest-portrait"><img src="assets/guest-sample/muzi-layer-06.png" alt=""></div>
+        <div class="guest-info">
+          <div class="name">江唯</div>
+          <div class="desc">冷淡外壳 · 内里嘴硬心软，对突然靠近的人本能戒备。</div>
+          <span class="tag-mini">疏离钓系</span><span class="tag-mini">嘴硬心软</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="eyebrow"><span class="dot"></span>今晚心动事件</div>
+      <div class="event-text">深夜的阳台还留着白天没散尽的暑气，江唯把风扇转向你这边，什么也没说，转身回了屋里——风扇的角度，比言语更早暴露了他的心思。</div>
+      <div class="card-toolbar"><button class="icon-btn neo-btn">⟳</button><button class="icon-btn neo-btn">♡</button></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="eyebrow"><span class="dot"></span>心动短信 · 情绪贴纸</div>
+      <div class="sms-preview" id="stickerRow">
+        <div class="sticker-chip" data-mood="害羞心动"><img src="assets/gifs/sticker-03.gif" alt=""><div class="mood">害羞心动</div></div>
+        <div class="sticker-chip" data-mood="告白爱意"><img src="assets/gifs/sticker-05.gif" alt=""><div class="mood">告白爱意</div></div>
+        <div class="sticker-chip" data-mood="开心甜蜜"><img src="assets/gifs/sticker-15.gif" alt=""><div class="mood">开心甜蜜</div></div>
+        <div class="sticker-chip" data-mood="生气不爽"><img src="assets/gifs/sticker-10.gif" alt=""><div class="mood">生气不爽</div></div>
+        <div class="sticker-chip" data-mood="委屈难过"><img src="assets/gifs/sticker-02.gif" alt=""><div class="mood">委屈难过</div></div>
+      </div>
+      <div class="setting-summary">点一下贴纸，试试触屏爱心反馈（GIF 与情绪对应关系见 gif-mood-map.json，可自行调整）。</div>
+    </div>
+
+    <div class="glass-card">
+      <div class="eyebrow"><span class="dot"></span>心动排名</div>
+      <div class="rank-row"><span class="rank-no">1</span><span class="rank-bar-bg"><span class="rank-bar-fill" style="width:82%"></span></span><span class="rank-pct">82%</span></div>
+      <div class="rank-row"><span class="rank-no">2</span><span class="rank-bar-bg"><span class="rank-bar-fill" style="width:61%"></span></span><span class="rank-pct">61%</span></div>
+      <div class="rank-row"><span class="rank-no">3</span><span class="rank-bar-bg"><span class="rank-bar-fill" style="width:47%"></span></span><span class="rank-pct">47%</span></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-工坊">
+
+    <!-- ---- 子屏1：角色档案库 ---- -->
+    <div class="wf-screen active" id="wf-list">
+      <div class="page-header"><div class="page-title">角色工坊</div></div>
+
+      <!-- 世界观切换（可折叠） -->
+      <div class="wf-worldview-bar glass-card" id="wfWorldviewBar">
+        <div class="wf-wv-current" id="wfWvToggle">
+          <div class="wf-wv-info">
+            <div class="wf-wv-label">当前世界观</div>
+            <div class="wf-wv-name" id="wfWvName">现代都市</div>
+            <div class="wf-wv-desc" id="wfWvDesc">默认现代都市背景，无特殊世界观规则。</div>
+          </div>
+          <div class="wf-wv-chevron" id="wfWvChevron">▾</div>
+        </div>
+        <div class="wf-wv-dropdown" id="wfWvDropdown">
+          <div class="wf-wv-list" id="wfWvList"></div>
+          <button class="neo-btn wf-add-btn" id="wfWvAddBtn">＋ 新建世界观</button>
+        </div>
+      </div>
+
+      <!-- 角色分组 -->
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>角色分组<span class="wf-manage-toggle" id="wfGroupManageBtn">管理</span></div>
+        <div class="wf-group-row" id="wfGroupRow"></div>
+        <button class="neo-btn wf-add-btn" id="wfGroupAddBtn">＋ 新建分组</button>
+        <div class="setting-summary">分组用来快速归类"这个世界观里谁是攻/受、1/0/0.5、T/P/H"这类角色定位，组名和描述可以自己定义，不限于示例。</div>
+      </div>
+
+      <button class="neo-btn wf-quick-btn" id="wfRandomBtn">🎲 随机生成一个人设方向</button>
+
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>已保存角色档案</div>
+        <div class="wf-roster-list" id="wfRosterList"></div>
+        <button class="neo-btn wf-add-btn" id="wfAddBtn">＋ 新建角色</button>
+      </div>
+    </div>
+
+    <!-- ---- 子屏2：角色详情总览 ---- -->
+    <div class="wf-screen" id="wf-detail">
+      <div class="page-header">
+        <div class="back-btn" data-back="wf-list">‹</div>
+        <div class="page-title">角色档案</div>
+        <div style="width:36px;"></div>
+      </div>
+
+      <div class="glass-card wf-detail-hero">
+        <div class="guest-portrait lg"><img id="wfDetailAvatar" src="assets/guest-sample/muzi-layer-06.png" alt=""></div>
+        <div class="wf-detail-name" id="wfDetailName">江唯</div>
+        <div class="wf-detail-wv" id="wfDetailWv">现代都市 · 男 分组</div>
+        <div class="wf-detail-tags" id="wfDetailTags">
+          <span class="tag-mini">疏离钓系</span><span class="tag-mini">嘴硬心软</span>
+        </div>
+        <button class="neo-btn wf-lead-btn active" id="wfLeadBtn">★ 设为当前主嘉宾</button>
+      </div>
+
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>行为状态（描述当下互动动态，非人格标签）</div>
+        <div class="chip-row wf-role-row" id="wfRoleRow">
+          <button class="neo-chip" data-role="dominant">主导方</button>
+          <button class="neo-chip active" data-role="passive">被动方</button>
+          <button class="neo-chip" data-role="flexible">不分</button>
+        </div>
+      </div>
+
+      <div class="glass-card wf-entry-list">
+        <div class="wf-entry-row" data-open="wf-basic">
+          <div class="wf-entry-l"><div class="wf-entry-t">基础信息</div><div class="wf-entry-s">男 · 24岁上下 · 建筑设计师</div></div>
+          <div class="wf-entry-r">›</div>
+        </div>
+        <div class="wf-entry-row" data-open="wf-portrait">
+          <div class="wf-entry-l"><div class="wf-entry-t">立绘设置</div><div class="wf-entry-s">比例 2:3 · 已上传</div></div>
+          <div class="wf-entry-r">›</div>
+        </div>
+        <div class="wf-entry-row" data-open="wf-tags">
+          <div class="wf-entry-l"><div class="wf-entry-t">快捷标签</div><div class="wf-entry-s">疏离钓系 · 嘴硬心软 · +1 自定义</div></div>
+          <div class="wf-entry-r">›</div>
+        </div>
+        <div class="wf-entry-row" data-open="wf-worldview">
+          <div class="wf-entry-l"><div class="wf-entry-t">世界观与分组</div><div class="wf-entry-s" id="wfEntryWvPreview">现代都市 · 男 分组</div></div>
+          <div class="wf-entry-r">›</div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>AI 辅助</div>
+        <div class="wf-ai-row">
+          <button class="neo-btn wf-ai-btn" id="wfAiRandom">🎲 随机方向</button>
+          <button class="neo-btn wf-ai-btn primary" id="wfAiGenerate">✨ AI 生成人设</button>
+        </div>
+        <div class="setting-summary">AI 生成会基于已填写内容补全一句话卖点、镜头感、恋爱逻辑、互动风格与文本气质。</div>
+      </div>
+
+      <div class="inherit-note">设为当前主嘉宾后，短信 / 约会 / 小剧场 / 群像 / 频道内容都会参考该嘉宾设定。</div>
+
+      <button class="save-btn" id="wfSaveBtn">保存角色档案</button>
+      <button class="wf-delete-link" id="wfDeleteLink">删除该角色</button>
+    </div>
+
+    <!-- ---- 子屏3：基础信息编辑 ---- -->
+    <div class="wf-screen" id="wf-basic">
+      <div class="page-header">
+        <div class="back-btn" data-back="wf-detail">‹</div>
+        <div class="page-title">基础信息</div>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="glass-card">
+        <div class="field"><label>姓名 / 昵称</label><input type="text" value="江唯" placeholder="嘉宾姓名"></div>
+        <div class="field"><label>性别</label>
+          <div class="chip-row"><button class="neo-chip active">男</button><button class="neo-chip">女</button></div>
+        </div>
+        <div class="field"><label>年龄段</label>
+          <div class="chip-row">
+            <button class="neo-chip">20岁以下</button><button class="neo-chip active">20-25</button>
+            <button class="neo-chip">25-30</button><button class="neo-chip">30+</button>
+          </div>
+        </div>
+        <div class="field"><label>职业 / 身份</label><input type="text" value="建筑设计师" placeholder="如：建筑设计师 / 古代世子"></div>
+        <div class="field"><label>外貌关键词</label><input type="text" value="冷白皮，薄唇，眼神淡" placeholder="如：高瘦，冷白皮，薄唇"></div>
+        <div class="field"><label>恋爱风格</label><input type="text" value="慢热，不主动但不拒绝" placeholder="如：慢热 / 直球 / 若即若离"></div>
+        <div class="field"><label>张力方向</label>
+          <div class="chip-row">
+            <button class="neo-chip active">嘴硬心软</button><button class="neo-chip">势均力敌</button>
+            <button class="neo-chip">主动追逐</button><button class="neo-chip">被动沦陷</button>
+          </div>
+        </div>
+        <div class="field"><label>自定义补充</label><textarea placeholder="其他想补充的人设细节…">对突然靠近的人本能戒备，但一旦认定就会很拧巴地对好。</textarea></div>
+        <div class="field"><label>世界观补充</label><textarea placeholder="如 ABO 第二性别 / 古代门第 / 哨向精神体设定…"></textarea></div>
+      </div>
+      <button class="save-btn" data-back="wf-detail">保存并返回</button>
+    </div>
+
+    <!-- ---- 子屏4：立绘设置 ---- -->
+    <div class="wf-screen" id="wf-portrait">
+      <div class="page-header">
+        <div class="back-btn" data-back="wf-detail">‹</div>
+        <div class="page-title">立绘设置</div>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="glass-card">
+        <div class="wf-portrait-preview" id="wfPortraitPreview">
+          <img src="assets/guest-sample/muzi-layer-06.png" alt="">
+        </div>
+        <div class="field" style="margin-top:14px;"><label>比例选择</label>
+          <div class="chip-row" id="wfRatioRow">
+            <button class="neo-chip active" data-ratio="2:3">2:3</button>
+            <button class="neo-chip" data-ratio="9:16">9:16</button>
+          </div>
+        </div>
+        <button class="neo-btn wf-upload-btn" id="wfPortraitUpload">📷 上传立绘</button>
+        <div class="avatar-hint" style="margin-top:8px;">立绘会同步用作头像，出现在今日心动对象、相册、频道、雷达等场景。</div>
+      </div>
+      <button class="save-btn" data-back="wf-detail">保存并返回</button>
+    </div>
+
+    <!-- ---- 子屏5：快捷标签编辑 ---- -->
+    <div class="wf-screen" id="wf-tags">
+      <div class="page-header">
+        <div class="back-btn" data-back="wf-detail">‹</div>
+        <div class="page-title">快捷标签</div>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>预设标签（点选/取消）</div>
+        <div class="chip-row chip-row-multi">
+          <button class="neo-chip">冷淡慢热</button><button class="neo-chip">温柔年上</button>
+          <button class="neo-chip">直球黏人</button><button class="neo-chip active">疏离钓系</button>
+          <button class="neo-chip active">嘴硬心软</button><button class="neo-chip">清醒克制</button>
+          <button class="neo-chip">阳光犬系</button><button class="neo-chip">清冷猫系</button>
+        </div>
+      </div>
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>自定义标签</div>
+        <div class="chip-row" id="wfCustomTagRow">
+          <span class="neo-chip active wf-custom-tag">偏执占有欲<button class="wf-tag-x" data-remove>×</button></span>
+        </div>
+        <button class="neo-btn wf-add-btn" id="wfAddTagBtn">＋ 添加自定义标签</button>
+        <div class="setting-summary">标签只保留最必要的几个即可，太多标签反而会让 AI 生成时抓不住重点——建议每个角色控制在 4-6 个以内。点自定义标签文字可重命名，点 × 删除。</div>
+      </div>
+      <button class="save-btn" data-back="wf-detail">保存并返回</button>
+    </div>
+
+    <!-- ---- 子屏6：该角色的世界观与分组归属 ---- -->
+    <div class="wf-screen" id="wf-worldview">
+      <div class="page-header">
+        <div class="back-btn" data-back="wf-detail">‹</div>
+        <div class="page-title">世界观与分组</div>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>所属世界观</div>
+        <div class="setting-summary">该角色档案归属于「现代都市」世界观，与其他世界观（如 ABO）下的角色档案相互独立保存，切换世界观后角色档案库只显示对应世界观下的角色。若要把这个角色挪到别的世界观，请回到工坊主屏切换世界观后重新创建。</div>
+      </div>
+      <div class="glass-card">
+        <div class="eyebrow"><span class="dot"></span>所属分组</div>
+        <div class="chip-row" id="wfCharGroupRow"></div>
+        <div class="setting-summary">分组用于快速归类攻/受、1/0/0.5、T/P/H 等角色定位，可在工坊主屏"角色分组"里自定义组名和描述。</div>
+      </div>
+      <button class="save-btn" data-back="wf-detail">保存并返回</button>
+    </div>
+
+  </section>
+
+  <section class="view" id="view-短信"><div class="placeholder-wrap"><img src="assets/pink-cat/cat-20.png"><div class="t">心动短信</div><div class="s">下一步搭建</div></div></section>
+  <section class="view" id="view-约会"><div class="placeholder-wrap"><img src="assets/pink-cat/cat-20.png"><div class="t">约会</div><div class="s">下一步搭建</div></div></section>
+  <section class="view" id="view-频道"><div class="placeholder-wrap"><img src="assets/pink-cat/cat-20.png"><div class="t">心动频道</div><div class="s">下一步搭建</div></div></section>
+  <section class="view" id="view-雷达"><div class="placeholder-wrap"><img src="assets/pink-cat/cat-20.png"><div class="t">心动雷达</div><div class="s">下一步搭建</div></div></section>
+  <section class="view" id="view-相册"><div class="placeholder-wrap"><img src="assets/pink-cat/cat-20.png"><div class="t">相册</div><div class="s">下一步搭建</div></div></section>
+  <section class="view" id="view-设置"><div class="placeholder-wrap"><img src="assets/pink-cat/cat-20.png"><div class="t">设置</div><div class="s">下一步搭建</div></div></section>
+
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-track" id="navTrack">
+    <div class="nav-item active" data-view="心动" data-wallpaper="wallpaper-01.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20s-7-4.6-9.5-9C.7 7.4 2 3.8 5.3 3.2 7.7 2.8 10 4 12 6.6 14 4 16.3 2.8 18.7 3.2 22 3.8 23.3 7.4 21.5 11c-2.5 4.4-9.5 9-9.5 9z"/></svg>心动</div>
+    <div class="nav-item" data-view="短信" data-wallpaper="wallpaper-04.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H8l-4 4V5z"/></svg>短信</div>
+    <div class="nav-item" data-view="约会" data-wallpaper="wallpaper-02.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>约会</div>
+    <div class="nav-item" data-view="频道" data-wallpaper="wallpaper-05.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9h10M7 13h6"/></svg>频道</div>
+    <div class="nav-item" data-view="工坊" data-wallpaper="wallpaper-03.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20l5-5m0 0a3 3 0 104-4 3 3 0 00-4 4zM14 10l6-6"/></svg>工坊</div>
+    <div class="nav-item" data-view="雷达" data-wallpaper="wallpaper-06.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>雷达</div>
+    <div class="nav-item" data-view="相册" data-wallpaper="wallpaper-01.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-4-9 7"/></svg>相册</div>
+    <div class="nav-item" data-view="设置" data-wallpaper="wallpaper-02.jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.2-1.6l2-1.5-2-3.4-2.3.9a7 7 0 00-2.8-1.6L13.3 2h-2.6l-.4 2.8a7 7 0 00-2.8 1.6l-2.3-.9-2 3.4 2 1.5a7 7 0 000 3.2l-2 1.5 2 3.4 2.3-.9a7 7 0 002.8 1.6l.4 2.8h2.6l.4-2.8a7 7 0 002.8-1.6l2.3.9 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z"/></svg>设置</div>
+  </div>
+</div>
+
+<script>
+  const navTrack = document.getElementById('navTrack');
+  const wallpaperEl = document.getElementById('wallpaper');
+  navTrack.addEventListener('click', (e)=>{
+    const item = e.target.closest('.nav-item');
+    if(!item) return;
+    document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const target = document.getElementById('view-' + item.dataset.view);
+    if(target) target.classList.add('active');
+    if(item.dataset.wallpaper){
+      wallpaperEl.style.backgroundImage = `url('assets/wallpapers/${item.dataset.wallpaper}')`;
+    }
+    window.scrollTo(0,0);
+  });
+
+  document.querySelectorAll('.chip-row').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      const chip = e.target.closest('.neo-chip');
+      if(!chip || chip.closest('.wf-custom-tag')) return; // 自定义标签有独立的点击逻辑
+      const isMultiSelect = row.classList.contains('chip-row-multi') || row.parentElement.querySelector('label')?.textContent.includes('可多选');
+      if(!isMultiSelect){ row.querySelectorAll('.neo-chip').forEach(c=>c.classList.remove('active')); }
+      chip.classList.toggle('active');
+    });
+  });
+
+  document.querySelectorAll('.roster-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      if(item.classList.contains('roster-add')) return;
+      document.querySelectorAll('.roster-item').forEach(i=>i.classList.remove('selected'));
+      item.classList.add('selected');
+    });
+  });
+
+  // ===== 工坊：数据模型（世界观 / 分组 / 角色，原型用内存对象模拟，正式环境对接 AiPhone.db） =====
+  let WORLDVIEWS = [
+    { id:'modern',   name:'现代都市', desc:'默认现代都市背景，无特殊世界观规则。' },
+    { id:'abo',      name:'ABO',     desc:'第二性别 / 信息素 / 标记体系。' },
+    { id:'ancient',  name:'古代架空', desc:'门第 / 婚约 / 礼法称谓体系。' },
+    { id:'sentinel', name:'哨向',    desc:'哨兵 / 向导精神体体系。' },
+  ];
+  let currentWorldviewId = 'modern';
+  let groupManageMode = false;
+  let currentCharId = null;
+
+  let GROUPS = {
+    modern:   [ {id:'g-male', name:'男', desc:'BG关系中的男方分组'}, {id:'g-female', name:'女', desc:'BG关系中的女方分组'} ],
+    abo:      [ {id:'g-alpha', name:'Alpha', desc:'ABO世界观中的强势攻方（对应1）'}, {id:'g-omega', name:'Omega', desc:'ABO世界观中的娇弱受方（对应0）'} ],
+    ancient:  [],
+    sentinel: [],
+  };
+  let selectedGroupId = { modern:null, abo:null, ancient:null, sentinel:null };
+
+  let CHARACTERS = {
+    modern: [
+      { id:'jiangwei',    name:'江唯',   avatar:'assets/guest-sample/muzi-layer-06.png', tags:['疏离钓系','嘴硬心软'], role:'passive',  groupId:'g-male', isLead:true },
+      { id:'zhoujingyao', name:'周景遥', avatar:'assets/guest-sample/muzi-layer-09.png', tags:['阳光犬系','直球黏人'], role:'dominant', groupId:'g-male', isLead:false },
+    ],
+    abo: [
+      { id:'xuwenshuo', name:'许闻朔', avatar:'assets/guest-sample/muzi-layer-12.png', tags:['清冷猫系','清醒克制'], role:'flexible', groupId:'g-alpha', isLead:false },
+    ],
+    ancient:  [],
+    sentinel: [],
+  };
+
+  function roleLabel(role){ return role==='dominant' ? '主导方' : role==='passive' ? '被动方' : '不分'; }
+  function groupName(wvId, gid){ return (GROUPS[wvId]||[]).find(g=>g.id===gid)?.name || '未分组'; }
+
+  function renderWorldviewBar(){
+    const wv = WORLDVIEWS.find(w=>w.id===currentWorldviewId);
+    document.getElementById('wfWvName').textContent = wv.name;
+    document.getElementById('wfWvDesc').textContent = wv.desc;
+    const list = document.getElementById('wfWvList');
+    list.innerHTML = WORLDVIEWS.map(w=>`
+      <div class="wf-wv-row ${w.id===currentWorldviewId?'current':''}" data-wvid="${w.id}">
+        <div class="wf-wv-row-info"><div class="wf-wv-row-name">${w.name}</div><div class="wf-wv-row-desc">${w.desc}</div></div>
+        <div class="wf-wv-row-actions">
+          <button class="wf-icon-btn" data-wv-edit="${w.id}">✎</button>
+          <button class="wf-icon-btn" data-wv-del="${w.id}">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderGroups(){
+    const groups = GROUPS[currentWorldviewId] || [];
+    const row = document.getElementById('wfGroupRow');
+    row.innerHTML = groups.map(g=>`
+      <span class="wf-group-chip ${selectedGroupId[currentWorldviewId]===g.id?'active':''}" data-group="${g.id}" title="${g.desc||''}">
+        ${g.name}
+        ${groupManageMode ? `<button class="wf-icon-btn" data-group-edit="${g.id}" style="width:18px;height:18px;font-size:10px;">✎</button><button class="wf-icon-btn" data-group-del="${g.id}" style="width:18px;height:18px;font-size:10px;">🗑</button>` : ''}
+      </span>`).join('') || `<span class="setting-summary">这个世界观下还没有分组，点下面"＋新建分组"加一个吧。</span>`;
+  }
+
+  function renderRoster(){
+    const chars = (CHARACTERS[currentWorldviewId] || []).filter(c => !selectedGroupId[currentWorldviewId] || c.groupId === selectedGroupId[currentWorldviewId]);
+    const list = document.getElementById('wfRosterList');
+    if(chars.length === 0){
+      list.innerHTML = `<div class="setting-summary">这个世界观 / 分组下还没有角色，点下面"＋新建角色"加一个吧。</div>`;
+      return;
+    }
+    list.innerHTML = chars.map(c=>`
+      <div class="wf-roster-row" data-id="${c.id}">
+        <div class="roster-avatar sm"><img src="${c.avatar}" alt=""></div>
+        <div class="wf-roster-info">
+          <div class="wf-roster-name">${c.name} ${c.isLead?'<span class="lead-badge">主嘉宾</span>':''}<span class="role-pill ${c.role}">${roleLabel(c.role)}</span></div>
+          <div class="wf-roster-tags">${c.tags.join(' · ')} · ${groupName(currentWorldviewId, c.groupId)}分组</div>
+        </div>
+        <button class="wf-del-btn" title="删除">🗑</button>
+      </div>`).join('');
+  }
+
+  function renderWorkshopAll(){ renderWorldviewBar(); renderGroups(); renderRoster(); }
+
+  function openCharacterDetail(id){
+    const c = (CHARACTERS[currentWorldviewId] || []).find(x=>x.id===id);
+    if(!c) return;
+    currentCharId = id;
+    document.getElementById('wfDetailAvatar').src = c.avatar;
+    document.getElementById('wfDetailName').textContent = c.name;
+    const wvName = WORLDVIEWS.find(w=>w.id===currentWorldviewId).name;
+    const gName = groupName(currentWorldviewId, c.groupId);
+    document.getElementById('wfDetailWv').textContent = `${wvName} · ${gName} 分组`;
+    document.getElementById('wfEntryWvPreview').textContent = `${wvName} · ${gName} 分组`;
+    document.getElementById('wfDetailTags').innerHTML = c.tags.map(t=>`<span class="tag-mini">${t}</span>`).join('');
+    document.getElementById('wfLeadBtn').classList.toggle('active', !!c.isLead);
+    document.querySelectorAll('#wfRoleRow .neo-chip').forEach(chip=>{
+      chip.classList.toggle('active', chip.dataset.role === c.role);
+    });
+    renderCharGroupPicker(c);
+  }
+
+  function renderCharGroupPicker(c){
+    const row = document.getElementById('wfCharGroupRow');
+    const groups = GROUPS[currentWorldviewId] || [];
+    row.innerHTML = groups.map(g=>`<button class="neo-chip ${g.id===c.groupId?'active':''}" data-set-group="${g.id}">${g.name}</button>`).join('')
+      || `<span class="setting-summary">当前世界观还没有分组，先回工坊主屏新建一个。</span>`;
+  }
+
+  // ===== 工坊：多层子屏导航（角色档案库 → 详情 → 基础信息/立绘/标签/世界观分组） =====
+  function showWfScreen(id){
+    document.querySelectorAll('.wf-screen').forEach(s=>s.classList.remove('active'));
+    const target = document.getElementById(id);
+    if(target){ target.classList.add('active'); }
+    document.querySelector('#view-工坊')?.scrollTo?.(0,0);
+    window.scrollTo(0,0);
+  }
+  document.getElementById('view-工坊')?.addEventListener('click', (e)=>{
+    // 世界观切换栏
+    if(e.target.closest('#wfWvToggle')){
+      document.getElementById('wfWorldviewBar').classList.toggle('open');
+      return;
+    }
+    const wvEdit = e.target.closest('[data-wv-edit]');
+    if(wvEdit){
+      const wv = WORLDVIEWS.find(w=>w.id===wvEdit.dataset.wvEdit);
+      const newName = prompt('世界观名称：', wv.name);
+      if(newName && newName.trim()){
+        wv.name = newName.trim();
+        const newDesc = prompt('世界观描述：', wv.desc);
+        if(newDesc !== null) wv.desc = newDesc.trim();
+        renderWorkshopAll();
+      }
+      return;
+    }
+    const wvDel = e.target.closest('[data-wv-del]');
+    if(wvDel){
+      if(WORLDVIEWS.length <= 1){ alert('至少要保留一个世界观。'); return; }
+      if(confirm('删除这个世界观预设？该世界观下的角色档案也会一并删除。')){
+        const id = wvDel.dataset.wvDel;
+        WORLDVIEWS = WORLDVIEWS.filter(w=>w.id!==id);
+        delete GROUPS[id]; delete CHARACTERS[id]; delete selectedGroupId[id];
+        if(currentWorldviewId === id){ currentWorldviewId = WORLDVIEWS[0].id; }
+        renderWorkshopAll();
+      }
+      return;
+    }
+    const wvRow = e.target.closest('.wf-wv-row');
+    if(wvRow){
+      currentWorldviewId = wvRow.dataset.wvid;
+      selectedGroupId[currentWorldviewId] = selectedGroupId[currentWorldviewId] || null;
+      document.getElementById('wfWorldviewBar').classList.remove('open');
+      renderWorkshopAll();
+      return;
+    }
+    if(e.target.closest('#wfWvAddBtn')){
+      const name = prompt('新世界观名称（如：末世 / 娱乐圈 / 校园）：');
+      if(name && name.trim()){
+        const desc = prompt('简单描述一下这个世界观的核心规则：') || '';
+        const id = 'wv-' + Date.now();
+        WORLDVIEWS.push({id, name:name.trim(), desc:desc.trim()});
+        GROUPS[id] = []; CHARACTERS[id] = []; selectedGroupId[id] = null;
+        currentWorldviewId = id;
+        renderWorkshopAll();
+      }
+      return;
+    }
+
+    // 角色分组
+    if(e.target.closest('#wfGroupManageBtn')){
+      groupManageMode = !groupManageMode;
+      e.target.closest('#wfGroupManageBtn').textContent = groupManageMode ? '完成' : '管理';
+      renderGroups();
+      return;
+    }
+    if(e.target.closest('#wfGroupAddBtn')){
+      const name = prompt('分组名称（如：攻 / 受 / 1 / 0 / 0.5 / T / P / H）：');
+      if(name && name.trim()){
+        const desc = prompt('分组描述（说明这个组代表什么角色定位）：') || '';
+        const id = 'g-' + Date.now();
+        (GROUPS[currentWorldviewId] = GROUPS[currentWorldviewId] || []).push({id, name:name.trim(), desc:desc.trim()});
+        renderGroups();
+      }
+      return;
+    }
+    const groupEdit = e.target.closest('[data-group-edit]');
+    if(groupEdit){
+      const g = GROUPS[currentWorldviewId].find(x=>x.id===groupEdit.dataset.groupEdit);
+      const newName = prompt('分组名称：', g.name);
+      if(newName && newName.trim()){
+        g.name = newName.trim();
+        const newDesc = prompt('分组描述：', g.desc);
+        if(newDesc !== null) g.desc = newDesc.trim();
+        renderGroups(); renderRoster();
+      }
+      return;
+    }
+    const groupDel = e.target.closest('[data-group-del]');
+    if(groupDel){
+      if(confirm('删除这个分组？组内角色不会被删除，但会变为未分组。')){
+        const gid = groupDel.dataset.groupDel;
+        GROUPS[currentWorldviewId] = GROUPS[currentWorldviewId].filter(g=>g.id!==gid);
+        (CHARACTERS[currentWorldviewId]||[]).forEach(c=>{ if(c.groupId===gid) c.groupId = null; });
+        if(selectedGroupId[currentWorldviewId] === gid) selectedGroupId[currentWorldviewId] = null;
+        renderGroups(); renderRoster();
+      }
+      return;
+    }
+    const groupChip = e.target.closest('.wf-group-chip');
+    if(groupChip && !groupManageMode){
+      const gid = groupChip.dataset.group;
+      selectedGroupId[currentWorldviewId] = (selectedGroupId[currentWorldviewId] === gid) ? null : gid;
+      renderGroups(); renderRoster();
+      return;
+    }
+
+    // 角色详情内：所属分组切换
+    const setGroupChip = e.target.closest('[data-set-group]');
+    if(setGroupChip){
+      const c = CHARACTERS[currentWorldviewId].find(x=>x.id===currentCharId);
+      if(c){ c.groupId = setGroupChip.dataset.setGroup; renderCharGroupPicker(c); }
+      return;
+    }
+
+    // 行为状态切换
+    const roleChip = e.target.closest('#wfRoleRow .neo-chip');
+    if(roleChip){
+      document.querySelectorAll('#wfRoleRow .neo-chip').forEach(c=>c.classList.remove('active'));
+      roleChip.classList.add('active');
+      const c = CHARACTERS[currentWorldviewId].find(x=>x.id===currentCharId);
+      if(c){ c.role = roleChip.dataset.role; }
+      return;
+    }
+
+    const back = e.target.closest('[data-back]');
+    if(back){ showWfScreen(back.dataset.back); return; }
+    const row = e.target.closest('.wf-roster-row');
+    if(row && !e.target.closest('.wf-del-btn')){ openCharacterDetail(row.dataset.id); showWfScreen('wf-detail'); return; }
+    const openBtn = e.target.closest('[data-open]');
+    if(openBtn){ showWfScreen(openBtn.dataset.open); return; }
+    if(e.target.closest('#wfAddBtn')){
+      const name = prompt('新角色姓名：');
+      if(name && name.trim()){
+        const id = 'char-' + Date.now();
+        const newChar = { id, name:name.trim(), avatar:'assets/guest-sample/muzi-layer-06.png', tags:[], role:'flexible', groupId: selectedGroupId[currentWorldviewId] || null, isLead:false };
+        (CHARACTERS[currentWorldviewId] = CHARACTERS[currentWorldviewId] || []).push(newChar);
+        renderRoster();
+        openCharacterDetail(id);
+        showWfScreen('wf-detail');
+      }
+      return;
+    }
+    if(e.target.closest('.wf-del-btn')){
+      if(confirm('确定删除这个角色档案吗？')){
+        const id = e.target.closest('.wf-roster-row').dataset.id;
+        CHARACTERS[currentWorldviewId] = CHARACTERS[currentWorldviewId].filter(c=>c.id!==id);
+        renderRoster();
+      }
+      return;
+    }
+    if(e.target.closest('#wfDeleteLink')){
+      if(confirm('确定删除该角色吗？此操作不可撤销。')){
+        CHARACTERS[currentWorldviewId] = CHARACTERS[currentWorldviewId].filter(c=>c.id!==currentCharId);
+        renderRoster();
+        showWfScreen('wf-list');
+      }
+      return;
+    }
+    if(e.target.closest('#wfLeadBtn')){
+      const btn = document.getElementById('wfLeadBtn');
+      btn.classList.toggle('active');
+      const c = CHARACTERS[currentWorldviewId].find(x=>x.id===currentCharId);
+      if(c){
+        const makeLead = btn.classList.contains('active');
+        if(makeLead){ CHARACTERS[currentWorldviewId].forEach(x=>x.isLead=false); }
+        c.isLead = makeLead;
+      }
+      return;
+    }
+    if(e.target.closest('#wfSaveBtn')){ renderRoster(); showWfScreen('wf-list'); return; }
+    if(e.target.closest('#wfRandomBtn') || e.target.closest('#wfAiRandom')){
+      alert('原型演示：真实环境中这里会调用 AiPhone.ai.generate({ appTags:["workshop","random_direction"] }) 生成一个随机人设方向，自动填入下方字段。');
+      return;
+    }
+    if(e.target.closest('#wfAiGenerate')){
+      alert('原型演示：会基于已填写的基础信息调用 AI 补全完整人设档案（一句话卖点/镜头感/恋爱逻辑/互动风格/文本气质）。');
+      return;
+    }
+    if(e.target.closest('#wfPortraitUpload')){
+      alert('原型演示：真实环境中这里会调用 AiPhone.media.pick 选择立绘图片，选完自动写入角色档案并按所选比例裁切预览。');
+      return;
+    }
+    const ratioChip = e.target.closest('#wfRatioRow .neo-chip');
+    if(ratioChip){
+      document.getElementById('wfPortraitPreview').style.aspectRatio = ratioChip.dataset.ratio.replace(':','/');
+      return;
+    }
+    if(e.target.closest('#wfAddTagBtn')){
+      const name = prompt('输入新标签名称（建议4字以内）：');
+      if(name && name.trim()){
+        const row = document.getElementById('wfCustomTagRow');
+        const chip = document.createElement('span');
+        chip.className = 'neo-chip active wf-custom-tag';
+        chip.innerHTML = name.trim() + '<button class="wf-tag-x" data-remove>×</button>';
+        row.appendChild(chip);
+      }
+      return;
+    }
+    const tagX = e.target.closest('.wf-tag-x');
+    if(tagX){ tagX.closest('.wf-custom-tag').remove(); return; }
+    const customTag = e.target.closest('.wf-custom-tag');
+    if(customTag){
+      const renamed = prompt('重命名标签：', customTag.textContent.replace('×','').trim());
+      if(renamed && renamed.trim()){
+        customTag.childNodes[0].textContent = renamed.trim();
+      }
+      return;
+    }
+  });
+  // 每次从底部导航重新进入"工坊"时，回到档案库列表
+  document.querySelectorAll('.nav-item[data-view="工坊"]').forEach(btn=>{
+    btn.addEventListener('click', ()=> showWfScreen('wf-list'));
+  });
+  renderWorkshopAll();
+
+  const popSymbols = ['♡','✦','♥','❀'];
+  function popHeart(x, y){
+    const el = document.createElement('div');
+    el.className = 'heart-pop';
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.color = ['#FFB4C9','#D9C6F2','#B8F2E6','#FFD9A0'][Math.floor(Math.random()*4)];
+    el.textContent = popSymbols[Math.floor(Math.random()*popSymbols.length)];
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 900);
+  }
+  const stickerRow = document.getElementById('stickerRow');
+  if(stickerRow){
+    stickerRow.addEventListener('pointerdown', (e)=>{
+      const chip = e.target.closest('.sticker-chip');
+      if(!chip) return;
+      const r = chip.getBoundingClientRect();
+      for(let i=0;i<3;i++){
+        setTimeout(()=>popHeart(r.left + r.width/2 + (Math.random()*20-10), r.top + 10), i*90);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

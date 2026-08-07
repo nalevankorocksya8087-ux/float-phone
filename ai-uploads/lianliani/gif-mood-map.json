@@ -1,0 +1,26 @@
+{
+  "note": "按视觉调性主观归类，用于心动短信区嘉宾按情绪状态贴GIF。verified=true 表示已实际查看过GIF内容确认；verified=false 表示因素材量大暂未逐一复核，先给出占位分类，建议你过一遍确认或替换。",
+  "moods": [
+    { "file": "assets/gifs/sticker-02.gif", "mood": "委屈难过", "verified": true, "desc": "幽灵猫流泪" },
+    { "file": "assets/gifs/sticker-03.gif", "mood": "害羞心动", "verified": true, "desc": "猫咪脸红" },
+    { "file": "assets/gifs/sticker-04.gif", "mood": "疑惑思考", "verified": true, "desc": "幽灵猫举爪带问号" },
+    { "file": "assets/gifs/sticker-05.gif", "mood": "告白爱意", "verified": true, "desc": "猫咪比心" },
+    { "file": "assets/gifs/sticker-07.gif", "mood": "害羞", "verified": true, "desc": "粉猫捂嘴娇羞表情" },
+    { "file": "assets/gifs/sticker-08.gif", "mood": "惊讶心动", "verified": true, "desc": "幽灵猫周围冒星星" },
+    { "file": "assets/gifs/sticker-10.gif", "mood": "生气不爽", "verified": true, "desc": "幽灵猫冒气愤怒" },
+    { "file": "assets/gifs/sticker-15.gif", "mood": "开心甜蜜", "verified": true, "desc": "粉猫被花朵围绕微笑" },
+    { "file": "assets/gifs/sticker-19.gif", "mood": "傲娇拒绝", "verified": true, "desc": "粉猫喷水/耍宝表情" },
+    { "file": "assets/gifs/sticker-01.gif", "mood": "甜蜜心动", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-16.gif", "mood": "开心", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-17.gif", "mood": "调皮试探", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-24.gif", "mood": "失落", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-26.gif", "mood": "惊喜", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-27.gif", "mood": "困倦慵懒", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-33.gif", "mood": "甜蜜", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-34.gif", "mood": "期待", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-37.gif", "mood": "紧张", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-38.gif", "mood": "撒娇", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-39.gif", "mood": "满足", "verified": false, "desc": "待确认，占位分类" },
+    { "file": "assets/gifs/sticker-40.gif", "mood": "兴奋", "verified": false, "desc": "待确认，占位分类" }
+  ]
+}
