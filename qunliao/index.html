@@ -14,25 +14,28 @@
     --muted:#aeb4d6;
     --accent:#7d8cff;
     --accent2:#a7b0ff;
+    --good:#7ee0b5;
   }
   *{box-sizing:border-box}
   body{margin:0;background:radial-gradient(120% 80% at 50% 0%, #1a1d36 0%, var(--bg) 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;}
+  button,input{font:inherit}
   .app{min-height:100vh;display:flex;flex-direction:column;}
   .topbar{height:64px;padding:14px 16px 10px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:linear-gradient(180deg, rgba(15,16,32,.96), rgba(15,16,32,.6));backdrop-filter: blur(12px);z-index:10;border-bottom:1px solid rgba(255,255,255,.04)}
   .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:1px solid rgba(255,255,255,.12);flex:0 0 auto;}
   .titlebox{flex:1;min-width:0}
   .title{font-size:16px;font-weight:700;line-height:1.1}
-  .sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .sub{font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .btn{width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.05);color:var(--text)}
   .main{flex:1;overflow:auto;padding:12px 12px 92px}
   .page{display:none}
   .page.active{display:block}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 12px 10px;margin-bottom:10px}
   .row{display:flex;align-items:center;gap:10px}
-  .ava2{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#2e3258,#5f6cff);flex:0 0 auto}
+  .ava2{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#2e3258,#5f6cff);flex:0 0 auto;display:grid;place-items:center;color:#fff;font-weight:700}
   .name{font-size:15px;font-weight:700}
   .desc{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
-  .time{font-size:11px;color:#8f96bf}
+  .time{font-size:11px;color:#8f96bf;white-space:nowrap}
+  .badge{margin-left:auto;font-size:11px;padding:4px 8px;border-radius:999px;background:rgba(125,140,255,.18);color:#dfe3ff}
   .tabs{position:fixed;left:0;right:0;bottom:0;height:72px;background:rgba(13,14,28,.92);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.06);display:flex;z-index:20}
   .tab{flex:1;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px}
   .tab.active{color:var(--text)}
@@ -54,10 +57,28 @@
   .stat b{display:block;font-size:16px}
   .sectionTitle{font-size:13px;color:var(--muted);margin:8px 4px 10px}
   .miniItem{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);margin-bottom:8px}
+  .miniItem.active{border-color:rgba(125,140,255,.35);background:rgba(125,140,255,.12)}
+  .miniTop{display:flex;align-items:center;gap:10px}
+  .miniMeta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
+  .dotstate{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px rgba(126,224,181,.12)}
+  .chipRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{font-size:11px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.05);color:var(--muted)}
   .chatbubble{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:12px;margin:8px 0;max-width:82%}
   .chatbubble.me{margin-left:auto;background:rgba(125,140,255,.18)}
   .sendbar{position:fixed;left:0;right:0;bottom:72px;padding:10px 12px;background:linear-gradient(180deg,rgba(15,16,32,0),rgba(15,16,32,.9));display:flex;gap:8px}
   .input{flex:1;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);border-radius:16px;padding:12px;color:var(--text)}
+  .profilePage .profileHero{padding-bottom:12px}
+  .profileLarge{display:flex;align-items:center;gap:14px}
+  .profileAvatar{width:68px;height:68px;border-radius:22px;background:linear-gradient(135deg,#7d8cff,#c2c7ff)}
+  .profileText{flex:1;min-width:0}
+  .profileText .desc{margin-top:6px}
+  .profileActions{display:flex;gap:8px;margin-top:12px}
+  .action{flex:1;border:0;border-radius:14px;padding:11px 10px;background:rgba(255,255,255,.06);color:var(--text)}
+  .action.primary{background:linear-gradient(135deg,#7d8cff,#9ca6ff);color:#111423;font-weight:700}
+  .feedItem .desc{margin-top:6px}
+  .feedMedia{margin-top:10px;height:140px;border-radius:16px;background:linear-gradient(135deg,rgba(125,140,255,.22),rgba(126,224,181,.12));border:1px solid rgba(255,255,255,.06)}
+  .chatHeader{display:flex;align-items:center;gap:10px}
+  .chatNameWrap{min-width:0}
 </style>
 </head>
 <body>
@@ -73,43 +94,85 @@
 
   <div class="main">
     <div class="page active" id="page-msg">
-      <div class="card"><div class="row"><div class="ava2"></div><div><div class="name">木子</div><div class="desc">你：今天晚上还来群里吗？</div></div><div style="margin-left:auto" class="time">18:20</div></div></div>
-      <div class="card"><div class="row"><div class="ava2"></div><div><div class="name">群通知</div><div class="desc">今晚 9 点开始活动，记得签到。</div></div><div style="margin-left:auto" class="time">17:05</div></div></div>
-      <div class="card"><div class="row"><div class="ava2"></div><div><div class="name">浮岛小助手</div><div class="desc">有人@了你：快来看新频道。</div></div><div style="margin-left:auto" class="time">昨天</div></div></div>
+      <div class="card" data-open="chat">
+        <div class="row">
+          <div class="ava2">木</div>
+          <div style="min-width:0;flex:1">
+            <div class="row" style="gap:8px"><div class="name">木子</div><div class="time">18:20</div></div>
+            <div class="desc">你：今天晚上还来群里吗？</div>
+          </div>
+          <div class="badge">2</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div class="ava2">通</div>
+          <div style="min-width:0;flex:1">
+            <div class="row" style="gap:8px"><div class="name">群通知</div><div class="time">17:05</div></div>
+            <div class="desc">今晚 9 点开始活动，记得签到。</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div class="ava2">助</div>
+          <div style="min-width:0;flex:1">
+            <div class="row" style="gap:8px"><div class="name">浮岛小助手</div><div class="time">昨天</div></div>
+            <div class="desc">有人@了你：快来看新频道。</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="page" id="page-channel">
       <div class="sectionTitle">频道</div>
-      <div class="miniItem"># 心动聊天局</div>
-      <div class="miniItem"># 角色讨论区</div>
-      <div class="miniItem"># 活动公告</div>
+      <div class="miniItem active">
+        <div class="miniTop"><div class="dotstate"></div><div><div class="name"># 心动聊天局</div><div class="miniMeta">正在热聊 · 28 人在线</div></div></div>
+      </div>
+      <div class="miniItem"><div class="miniTop"><div class="dotstate" style="background:#7d8cff;box-shadow:0 0 0 4px rgba(125,140,255,.12)"></div><div><div class="name"># 角色讨论区</div><div class="miniMeta">角色设定、关系走向与日常话题</div></div></div></div>
+      <div class="miniItem"><div class="miniTop"><div class="dotstate" style="background:#f7b267;box-shadow:0 0 0 4px rgba(247,178,103,.12)"></div><div><div class="name"># 活动公告</div><div class="miniMeta">查看最新活动与签到说明</div></div></div></div>
     </div>
 
     <div class="page" id="page-contacts">
       <div class="sectionTitle">联系人</div>
-      <div class="miniItem">木子</div>
-      <div class="miniItem">小助手</div>
-      <div class="miniItem">群管理员</div>
+      <div class="miniItem"><div class="miniTop"><div class="ava2">木</div><div><div class="name">木子</div><div class="miniMeta">在线 · 单聊入口</div></div></div></div>
+      <div class="miniItem"><div class="miniTop"><div class="ava2">小</div><div><div class="name">小助手</div><div class="miniMeta">在线 · 群管与提示</div></div></div></div>
+      <div class="miniItem"><div class="miniTop"><div class="ava2">管</div><div><div class="name">群管理员</div><div class="miniMeta">忙碌 · 审核中</div></div></div></div>
     </div>
 
     <div class="page" id="page-feed">
       <div class="sectionTitle">动态</div>
-      <div class="miniItem">木子发布了一条动态：今天的晚霞很好看。</div>
-      <div class="miniItem">你收藏了 2 张表情包。</div>
+      <div class="card feedItem">
+        <div class="row"><div class="ava2">木</div><div style="min-width:0;flex:1"><div class="name">木子</div><div class="desc">今天的晚霞很好看，拍下来发给大家。</div></div><div class="time">刚刚</div></div>
+        <div class="feedMedia"></div>
+      </div>
+      <div class="card feedItem">
+        <div class="row"><div class="ava2">你</div><div style="min-width:0;flex:1"><div class="name">你</div><div class="desc">收藏了 2 张表情包。</div></div><div class="time">1 小时前</div></div>
+      </div>
     </div>
 
-    <div class="page" id="page-profile">
+    <div class="page profilePage" id="page-profile">
       <div class="profileHero">
-        <div class="row"><div class="meava"></div><div><div class="name">你的头像</div><div class="desc">浮岛群聊个人主页</div></div></div>
-        <div class="profileStats"><div class="stat"><b>12</b><span class="small">群聊</span></div><div class="stat"><b>86</b><span class="small">好友</span></div><div class="stat"><b>24</b><span class="small">动态</span></div></div>
+        <div class="profileLarge">
+          <div class="profileAvatar"></div>
+          <div class="profileText"><div class="name">你的头像</div><div class="desc">浮岛群聊个人主页</div><div class="chipRow"><span class="chip">深色像素风</span><span class="chip">群聊管理</span><span class="chip">关系网络</span></div></div>
+        </div>
+        <div class="profileActions"><button class="action primary">编辑资料</button><button class="action">切换状态</button></div>
       </div>
+      <div class="profileStats"><div class="stat"><b>12</b><span class="small">群聊</span></div><div class="stat"><b>86</b><span class="small">好友</span></div><div class="stat"><b>24</b><span class="small">动态</span></div></div>
+      <div class="sectionTitle">资料</div>
       <div class="miniItem">资料卡</div>
       <div class="miniItem">我的收藏</div>
       <div class="miniItem">设置</div>
     </div>
 
     <div class="page" id="page-chat">
-      <div class="sectionTitle">聊天详情页</div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="chatHeader">
+          <div class="ava2">木</div>
+          <div class="chatNameWrap"><div class="name">木子</div><div class="desc">在线 · 消息详情页</div></div>
+        </div>
+      </div>
       <div class="chatbubble">你：今天晚上还来群里吗？</div>
       <div class="chatbubble me">木子：来呀，我刚好有空。</div>
       <div class="chatbubble">你：那我等你。</div>
@@ -152,7 +215,7 @@ const pageSub=document.getElementById('pageSub');
 const sendBar=document.getElementById('sendBar');
 function show(name){Object.values(pages).forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(pages[name]).classList.add('active');tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===name));pageTitle.textContent=titles[name][0];pageSub.textContent=titles[name][1];sendBar.style.display=name==='chat'?'flex':'none';}
 tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
-const drawer=document.getElementById('drawer');const mask=document.getElementById('mask');document.getElementById('avatarBtn').onclick=()=>{drawer.classList.add('open');mask.classList.add('open');};document.getElementById('profileBtn').onclick=()=>show('profile');mask.onclick=()=>{drawer.classList.remove('open');mask.classList.remove('open');};document.querySelectorAll('.menuitem').forEach(b=>b.onclick=()=>{show(b.dataset.open);drawer.classList.remove('open');mask.classList.remove('open');});
+const drawer=document.getElementById('drawer');const mask=document.getElementById('mask');document.getElementById('avatarBtn').onclick=()=>{drawer.classList.add('open');mask.classList.add('open');};document.getElementById('profileBtn').onclick=()=>show('profile');mask.onclick=()=>{drawer.classList.remove('open');mask.classList.remove('open');};document.querySelectorAll('.menuitem').forEach(b=>b.onclick=()=>{show(b.dataset.open);drawer.classList.remove('open');mask.classList.remove('open');});document.querySelector('[data-open="chat"]').onclick=()=>show('chat');
 </script>
 </body>
 </html>
