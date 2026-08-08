@@ -132,22 +132,39 @@
 
   .hero-card,.msg-card,.channel-card,.contact-card,.feed-card,.profile-card,.drawer-card,.composer{
     position:relative;
-    background:linear-gradient(180deg,rgba(22,29,51,.95),rgba(13,18,34,.95));
-    border:1px solid var(--line);
+    background:
+      linear-gradient(180deg,rgba(27,35,60,.96),rgba(12,17,31,.97)),
+      linear-gradient(135deg,rgba(132,214,255,.05),transparent 42%);
+    border:1px solid rgba(122,162,240,.2);
     border-radius:var(--radius);
-    box-shadow:var(--glow);
+    box-shadow:
+      0 0 0 1px rgba(170,219,255,.04) inset,
+      0 18px 40px rgba(0,0,0,.34),
+      0 0 24px rgba(84,118,255,.12),
+      inset 0 1px 0 rgba(255,255,255,.05);
     overflow:hidden;
   }
   .hero-card::before,.msg-card::before,.channel-card::before,.contact-card::before,.feed-card::before,.profile-card::before,.drawer-card::before,.composer::before{
-    content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(179,229,255,.42),transparent);
+    content:"";position:absolute;left:12px;right:12px;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(179,229,255,.5),transparent);
+  }
+  .hero-card::after,.msg-card::after,.channel-card::after,.contact-card::after,.feed-card::after,.profile-card::after,.drawer-card::after,.composer::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.018),inset 0 -18px 30px rgba(0,0,0,.12);
   }
 
-  .hero-card{padding:18px;margin-bottom:14px;}
+  .hero-card{padding:18px 18px 16px;margin-bottom:14px;border-radius:26px;}
+  .hero-card .hero-top,.hero-card .hero-name,.hero-card .hero-desc,.hero-card .hero-stats{position:relative;z-index:1;}
+  .hero-card::before{top:10px;}
+  .hero-card::after{
+    background:
+      radial-gradient(circle at 84% 20%,rgba(145,121,255,.14),transparent 22%),
+      radial-gradient(circle at 16% 16%,rgba(145,226,255,.12),transparent 20%);
+  }
   .hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .hero-label{font-size:11px;color:#9bc9ff;letter-spacing:1.2px;}
   .hero-badge{padding:6px 10px;border-radius:999px;background:rgba(116,167,255,.12);border:1px solid rgba(116,167,255,.24);font-size:10px;color:#d9ebff;}
   .hero-name{margin-top:10px;font-size:24px;font-weight:700;letter-spacing:1px;}
-  .hero-desc{margin-top:8px;font-size:12px;line-height:1.6;color:#9eabc8;}
+  .hero-desc{margin-top:8px;font-size:12px;line-height:1.65;color:#9eabc8;max-width:290px;}
   .hero-stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
   .stat-chip{padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(141,196,255,.14);font-size:11px;color:#d7e6ff;}
 
@@ -155,22 +172,26 @@
   .section-title{font-size:13px;color:#dce8ff;letter-spacing:1px;}
   .section-side{font-size:11px;color:#7e8db0;}
 
-  .stack{display:flex;flex-direction:column;gap:12px;}
-  .msg-card,.channel-card,.contact-card,.feed-card{padding:14px;}
+  .stack{display:flex;flex-direction:column;gap:10px;}
+  .msg-card,.channel-card,.contact-card,.feed-card{padding:13px 14px 12px;border-radius:20px;}
+  .msg-card{background:linear-gradient(180deg,rgba(23,30,52,.98),rgba(12,17,31,.98));}
+  .msg-card + .msg-card,.channel-card + .channel-card,.contact-card + .contact-card,.feed-card + .feed-card{margin-top:-1px;}
   .list-item{display:flex;gap:12px;align-items:flex-start;width:100%;background:none;padding:0;text-align:left;}
   .list-avatar{
-    width:48px;height:48px;border-radius:18px;flex:0 0 auto;position:relative;
-    background:linear-gradient(180deg,#23325d,#10182f);
+    width:48px;height:48px;border-radius:16px;flex:0 0 auto;position:relative;
+    background:
+      radial-gradient(circle at 34% 28%,rgba(174,228,255,.28),transparent 22%),
+      linear-gradient(180deg,#263664,#10182f);
     border:1px solid rgba(141,196,255,.18);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 6px 18px rgba(0,0,0,.22);
   }
-  .list-avatar::after{content:attr(data-tag);position:absolute;inset:0;display:grid;place-items:center;font-size:15px;color:#eaf6ff;}
-  .list-main{min-width:0;flex:1;}
+  .list-avatar::after{content:attr(data-tag);position:absolute;inset:0;display:grid;place-items:center;font-size:15px;color:#eaf6ff;text-shadow:0 0 10px rgba(133,220,255,.3);}
+  .list-main{min-width:0;flex:1;padding-top:2px;}
   .line-top{display:flex;gap:10px;align-items:center;justify-content:space-between;}
   .name{font-size:15px;color:#edf4ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .meta{font-size:10px;color:#7d8ba9;white-space:nowrap;}
-  .preview{margin-top:6px;font-size:12px;color:#97a4c2;line-height:1.45;}
-  .pill{margin-top:10px;display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:rgba(127,214,255,.08);border:1px solid rgba(127,214,255,.15);font-size:10px;color:#bdefff;}
+  .preview{margin-top:5px;font-size:12px;color:#97a4c2;line-height:1.48;}
+  .pill{margin-top:9px;display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:rgba(127,214,255,.08);border:1px solid rgba(127,214,255,.15);font-size:10px;color:#bdefff;}
 
   .tabbar{
     position:absolute;left:12px;right:12px;bottom:10px;z-index:20;
@@ -302,15 +323,15 @@
     <section class="page active" id="page-msg">
       <div class="hero-card">
         <div class="hero-top">
-          <div class="hero-label">FLOAT ISLAND GROUPCHAT / WORK COPY</div>
-          <div class="hero-badge">保留原版文件</div>
+          <div class="hero-label">FLOAT ISLAND / MESSAGE DECK</div>
+          <div class="hero-badge">副本施工中</div>
         </div>
         <div class="hero-name">消息</div>
-        <div class="hero-desc">先用你上传的原版气质做工作副本，结构往 QQ 靠，但视觉会继续往你原来的浮岛味道收。</div>
+        <div class="hero-desc">先把副本的材质、边框、冷光和列表密度往你原版靠。结构借 QQ，但不再走通用社交 UI 的味道。</div>
         <div class="hero-stats">
           <span class="stat-chip">4 个主页面</span>
-          <span class="stat-chip">侧边栏</span>
-          <span class="stat-chip">个人主页</span>
+          <span class="stat-chip">浮岛冷色材质</span>
+          <span class="stat-chip">原文件保留</span>
         </div>
       </div>
 
