@@ -1,0 +1,20 @@
+{
+  "sdkVersion": "1.0",
+  "id": "float.groupchat",
+  "name": "浮岛群聊",
+  "version": "0.1.0",
+  "author": "你的名字",
+  "description": "一个独立的群聊 APP：可以把系统里已创建的角色拉进群，管理群主/管理员/成员身份、专属称号、等级和禁言。",
+  "icon": "icon.png",
+  "entry": "index.html",
+  "permissions": [
+    "app.data.read",
+    "app.data.write",
+    "characters.read",
+    "ai.generate",
+    "user.profile.read",
+    "user.persona.read",
+    "user.preferences.read",
+    "ui.toast"
+  ]
+}
