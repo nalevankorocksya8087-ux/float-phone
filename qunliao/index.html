@@ -5,11 +5,154 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
 <title>浮岛群聊</title>
 <style>
-  body{font-family:sans-serif;background:#111;color:#fff;padding:24px}
+  :root{
+    --bg:#0f1020;
+    --panel:rgba(25,28,52,.72);
+    --panel2:rgba(32,36,66,.82);
+    --line:rgba(255,255,255,.08);
+    --text:#f5f6ff;
+    --muted:#aeb4d6;
+    --accent:#7d8cff;
+    --accent2:#a7b0ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(120% 80% at 50% 0%, #1a1d36 0%, var(--bg) 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;}
+  .app{min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{height:64px;padding:14px 16px 10px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:linear-gradient(180deg, rgba(15,16,32,.96), rgba(15,16,32,.6));backdrop-filter: blur(12px);z-index:10;border-bottom:1px solid rgba(255,255,255,.04)}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:1px solid rgba(255,255,255,.12);flex:0 0 auto;}
+  .titlebox{flex:1;min-width:0}
+  .title{font-size:16px;font-weight:700;line-height:1.1}
+  .sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .btn{width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.05);color:var(--text)}
+  .main{flex:1;overflow:auto;padding:12px 12px 92px}
+  .page{display:none}
+  .page.active{display:block}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 12px 10px;margin-bottom:10px}
+  .row{display:flex;align-items:center;gap:10px}
+  .ava2{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#2e3258,#5f6cff);flex:0 0 auto}
+  .name{font-size:15px;font-weight:700}
+  .desc{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+  .time{font-size:11px;color:#8f96bf}
+  .tabs{position:fixed;left:0;right:0;bottom:0;height:72px;background:rgba(13,14,28,.92);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.06);display:flex;z-index:20}
+  .tab{flex:1;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px}
+  .tab.active{color:var(--text)}
+  .dot{width:6px;height:6px;border-radius:50%;background:transparent}
+  .tab.active .dot{background:var(--accent)}
+  .drawerMask{position:fixed;inset:0;background:rgba(0,0,0,.38);display:none;z-index:30}
+  .drawer{position:fixed;top:0;bottom:0;left:-82%;width:82%;max-width:320px;background:linear-gradient(180deg,#171a31,#111423);border-right:1px solid rgba(255,255,255,.08);padding:18px 14px;z-index:31;transition:left .22s ease}
+  .drawer.open{left:0}
+  .drawerMask.open{display:block}
+  .me{padding:14px;border-radius:18px;background:var(--panel2);border:1px solid var(--line);margin-bottom:12px}
+  .mehead{display:flex;align-items:center;gap:12px}
+  .meava{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,#7d8cff,#c2c7ff)}
+  .small{font-size:12px;color:var(--muted)}
+  .menu{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .menuitem{padding:12px 12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);color:var(--text);text-align:left}
+  .profileHero{background:linear-gradient(135deg,#22274a,#111423);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:12px}
+  .profileStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:10px;text-align:center}
+  .stat b{display:block;font-size:16px}
+  .sectionTitle{font-size:13px;color:var(--muted);margin:8px 4px 10px}
+  .miniItem{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);margin-bottom:8px}
+  .chatbubble{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:12px;margin:8px 0;max-width:82%}
+  .chatbubble.me{margin-left:auto;background:rgba(125,140,255,.18)}
+  .sendbar{position:fixed;left:0;right:0;bottom:72px;padding:10px 12px;background:linear-gradient(180deg,rgba(15,16,32,0),rgba(15,16,32,.9));display:flex;gap:8px}
+  .input{flex:1;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);border-radius:16px;padding:12px;color:var(--text)}
 </style>
 </head>
 <body>
-  <h1>浮岛群聊</h1>
-  <p>这是 qunliao 改版占位文件。</p>
+<div class="app">
+  <div class="topbar">
+    <button class="avatar" id="avatarBtn" aria-label="侧边栏"></button>
+    <div class="titlebox">
+      <div class="title" id="pageTitle">消息</div>
+      <div class="sub" id="pageSub">浮岛群聊 · 仿 QQ 主页面</div>
+    </div>
+    <button class="btn" id="profileBtn">我</button>
+  </div>
+
+  <div class="main">
+    <div class="page active" id="page-msg">
+      <div class="card"><div class="row"><div class="ava2"></div><div><div class="name">木子</div><div class="desc">你：今天晚上还来群里吗？</div></div><div style="margin-left:auto" class="time">18:20</div></div></div>
+      <div class="card"><div class="row"><div class="ava2"></div><div><div class="name">群通知</div><div class="desc">今晚 9 点开始活动，记得签到。</div></div><div style="margin-left:auto" class="time">17:05</div></div></div>
+      <div class="card"><div class="row"><div class="ava2"></div><div><div class="name">浮岛小助手</div><div class="desc">有人@了你：快来看新频道。</div></div><div style="margin-left:auto" class="time">昨天</div></div></div>
+    </div>
+
+    <div class="page" id="page-channel">
+      <div class="sectionTitle">频道</div>
+      <div class="miniItem"># 心动聊天局</div>
+      <div class="miniItem"># 角色讨论区</div>
+      <div class="miniItem"># 活动公告</div>
+    </div>
+
+    <div class="page" id="page-contacts">
+      <div class="sectionTitle">联系人</div>
+      <div class="miniItem">木子</div>
+      <div class="miniItem">小助手</div>
+      <div class="miniItem">群管理员</div>
+    </div>
+
+    <div class="page" id="page-feed">
+      <div class="sectionTitle">动态</div>
+      <div class="miniItem">木子发布了一条动态：今天的晚霞很好看。</div>
+      <div class="miniItem">你收藏了 2 张表情包。</div>
+    </div>
+
+    <div class="page" id="page-profile">
+      <div class="profileHero">
+        <div class="row"><div class="meava"></div><div><div class="name">你的头像</div><div class="desc">浮岛群聊个人主页</div></div></div>
+        <div class="profileStats"><div class="stat"><b>12</b><span class="small">群聊</span></div><div class="stat"><b>86</b><span class="small">好友</span></div><div class="stat"><b>24</b><span class="small">动态</span></div></div>
+      </div>
+      <div class="miniItem">资料卡</div>
+      <div class="miniItem">我的收藏</div>
+      <div class="miniItem">设置</div>
+    </div>
+
+    <div class="page" id="page-chat">
+      <div class="sectionTitle">聊天详情页</div>
+      <div class="chatbubble">你：今天晚上还来群里吗？</div>
+      <div class="chatbubble me">木子：来呀，我刚好有空。</div>
+      <div class="chatbubble">你：那我等你。</div>
+    </div>
+  </div>
+
+  <div class="sendbar" id="sendBar" style="display:none">
+    <input class="input" placeholder="输入消息..." />
+    <button class="btn">发</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="msg"><span>消息</span><span class="dot"></span></button>
+    <button class="tab" data-tab="channel"><span>频道</span><span class="dot"></span></button>
+    <button class="tab" data-tab="contacts"><span>联系人</span><span class="dot"></span></button>
+    <button class="tab" data-tab="feed"><span>动态</span><span class="dot"></span></button>
+  </div>
+
+  <div class="drawerMask" id="mask"></div>
+  <aside class="drawer" id="drawer">
+    <div class="me">
+      <div class="mehead"><div class="meava"></div><div><div class="name">你的头像</div><div class="small">点这里进入个人主页</div></div></div>
+    </div>
+    <div class="menu">
+      <button class="menuitem" data-open="profile">个人主页</button>
+      <button class="menuitem" data-open="msg">消息</button>
+      <button class="menuitem" data-open="channel">频道</button>
+      <button class="menuitem" data-open="contacts">联系人</button>
+      <button class="menuitem" data-open="feed">动态</button>
+      <button class="menuitem" data-open="chat">聊天详情页</button>
+    </div>
+  </aside>
+</div>
+<script>
+const pages={msg:'page-msg',channel:'page-channel',contacts:'page-contacts',feed:'page-feed',profile:'page-profile',chat:'page-chat'};
+const titles={msg:['消息','浮岛群聊 · 仿 QQ 主页面'],channel:['频道','频道分区'],contacts:['联系人','联系人列表'],feed:['动态','朋友圈式动态流'],profile:['个人主页','你的资料'],chat:['聊天','单聊详情页']};
+const tabs=[...document.querySelectorAll('.tab')];
+const pageTitle=document.getElementById('pageTitle');
+const pageSub=document.getElementById('pageSub');
+const sendBar=document.getElementById('sendBar');
+function show(name){Object.values(pages).forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(pages[name]).classList.add('active');tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===name));pageTitle.textContent=titles[name][0];pageSub.textContent=titles[name][1];sendBar.style.display=name==='chat'?'flex':'none';}
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
+const drawer=document.getElementById('drawer');const mask=document.getElementById('mask');document.getElementById('avatarBtn').onclick=()=>{drawer.classList.add('open');mask.classList.add('open');};document.getElementById('profileBtn').onclick=()=>show('profile');mask.onclick=()=>{drawer.classList.remove('open');mask.classList.remove('open');};document.querySelectorAll('.menuitem').forEach(b=>b.onclick=()=>{show(b.dataset.open);drawer.classList.remove('open');mask.classList.remove('open');});
+</script>
 </body>
 </html>
