@@ -6,20 +6,21 @@
 <title>浮岛群聊</title>
 <style>
   :root{
-    --bg:#070a13;
-    --bg2:#0c1020;
-    --panel:#11182b;
-    --panel-soft:rgba(16,22,38,.86);
-    --panel-lite:rgba(20,28,48,.92);
-    --line:rgba(150,190,255,.12);
-    --line-strong:rgba(150,190,255,.22);
-    --text:#eef4ff;
-    --muted:#91a0c8;
-    --accent:#78a6ff;
-    --accent-soft:rgba(120,166,255,.16);
-    --cyan:#76e3ff;
-    --pink:#b998ff;
-    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --bg:#08101f;
+    --bg2:#0c1630;
+    --panel:#101a31;
+    --panel-soft:rgba(16,26,49,.94);
+    --panel-lite:rgba(18,31,58,.98);
+    --line:#2a3f73;
+    --line-soft:rgba(120,166,255,.18);
+    --text:#edf4ff;
+    --muted:#8ea3d2;
+    --accent:#7ca9ff;
+    --accent-2:#77e4ff;
+    --gold:#ffd36f;
+    --green:#71e6b3;
+    --danger:#ff8f9a;
+    --shadow:0 12px 28px rgba(0,0,0,.32);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -28,170 +29,216 @@
     color:var(--text);
     font-family:"PingFang SC","Microsoft YaHei",sans-serif;
     background:
-      radial-gradient(120% 100% at 50% -10%, rgba(84,123,255,.18) 0%, transparent 50%),
-      radial-gradient(80% 70% at 100% 0%, rgba(118,227,255,.09) 0%, transparent 60%),
-      linear-gradient(180deg,#0b1020 0%, #080b16 48%, #06080f 100%);
+      radial-gradient(120% 90% at 50% -10%, rgba(124,169,255,.16) 0%, transparent 52%),
+      radial-gradient(90% 70% at 100% 0%, rgba(119,228,255,.1) 0%, transparent 58%),
+      linear-gradient(180deg,#0b1327 0%, #09101f 48%, #070b14 100%);
   }
   button,input{font:inherit}
   .app{min-height:100vh;position:relative;overflow:hidden}
-  .noise,.noise:before,.noise:after{pointer-events:none;position:absolute;inset:0;content:""}
-  .noise:before{background-image:linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);background-size:4px 4px;opacity:.2}
-  .noise:after{background:radial-gradient(circle at 20% 20%, rgba(120,166,255,.12), transparent 28%),radial-gradient(circle at 80% 0%, rgba(185,152,255,.08), transparent 24%);mix-blend-mode:screen}
+  .grain,.grain:before,.grain:after{pointer-events:none;position:absolute;inset:0;content:""}
+  .grain:before{background-image:linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);background-size:4px 4px;opacity:.18}
+  .grain:after{background:radial-gradient(circle at 20% 20%, rgba(124,169,255,.12), transparent 26%),radial-gradient(circle at 80% 0%, rgba(119,228,255,.08), transparent 24%)}
   .shell{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
   .topbar{
-    height:68px;padding:14px 16px 10px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;
-    background:linear-gradient(180deg, rgba(8,11,20,.96), rgba(8,11,20,.72));backdrop-filter:blur(14px);
-    border-bottom:1px solid rgba(130,170,255,.08);
+    position:sticky;top:0;z-index:10;height:68px;padding:14px 14px 10px;display:flex;align-items:center;gap:12px;
+    background:linear-gradient(180deg, rgba(8,12,23,.98), rgba(8,12,23,.76));backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(120,166,255,.08);
   }
-  .avatar,.btn,.miniBtn{border:1px solid var(--line);background:rgba(15,20,36,.9);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
-  .avatar{width:40px;height:40px;border-radius:14px;position:relative;overflow:hidden;flex:0 0 auto}
-  .avatar:before,.avatar:after{content:"";position:absolute;inset:0}
-  .avatar:before{background:linear-gradient(135deg,#6c7dff 0%,#7ce7ff 100%)}
-  .avatar:after{inset:3px;border-radius:11px;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0))}
-  .titlebox{flex:1;min-width:0}
+  .avatarBtn,.miniBtn,.topBtn,.fab,.subChip,.tab,.menuitem,.sectionBtn,.actionBtn,.ghostBtn{appearance:none;-webkit-appearance:none;border:0;color:var(--text)}
+  .avatarBtn,.topBtn,.miniBtn,.sectionBtn,.ghostBtn,.fab{
+    background:linear-gradient(180deg, rgba(19,31,58,.96), rgba(14,23,42,.96));
+    border:1px solid var(--line-soft);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),var(--shadow);
+  }
+  .avatarBtn{
+    width:40px;height:40px;border-radius:14px;position:relative;overflow:hidden;flex:0 0 auto;
+  }
+  .avatarBtn:before,.avatarBtn:after,.profileAvatar:before,.profileAvatar:after,.drawerAvatar:before,.drawerAvatar:after,.listAvatar:before,.listAvatar:after{content:"";position:absolute;inset:0}
+  .avatarBtn:before,.profileAvatar:before,.drawerAvatar:before,.listAvatar:before{background:linear-gradient(135deg,#6f7fff 0%,#78c0ff 48%,#77e4ff 100%)}
+  .avatarBtn:after,.profileAvatar:after,.drawerAvatar:after,.listAvatar:after{inset:3px;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0))}
+  .titleBox{flex:1;min-width:0}
   .title{font-size:16px;font-weight:700;letter-spacing:.5px}
   .sub{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .btn,.miniBtn{color:var(--text);border-radius:12px}
-  .btn{width:36px;height:36px}
-  .miniBtn{padding:0 10px;height:32px;font-size:12px}
-  .main{flex:1;overflow:auto;padding:12px 12px 100px}
+  .topBtn{width:36px;height:36px;border-radius:12px}
+  .main{flex:1;overflow:auto;padding:12px 12px 104px}
   .page{display:none}
   .page.active{display:block}
-  .hero{
-    background:linear-gradient(180deg, rgba(17,24,43,.96), rgba(11,16,29,.92));
-    border:1px solid var(--line-strong);border-radius:24px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px;position:relative;overflow:hidden;
+  .hero,.card,.sectionCard,.profilePanel,.chatHead,.drawerPanel,.feedBanner{
+    background:linear-gradient(180deg, rgba(18,30,56,.98), rgba(11,18,34,.98));
+    border:1px solid var(--line-soft);
+    box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
   }
-  .hero:after{content:"";position:absolute;inset:auto -20% -45% auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle, rgba(118,227,255,.18), transparent 65%)}
+  .hero,.profilePanel{border-radius:24px;padding:14px;margin-bottom:12px}
+  .hero:before,.card:before,.sectionCard:before,.profilePanel:before,.chatHead:before,.drawerPanel:before,.feedBanner:before{
+    content:"";position:absolute;left:0;top:0;right:0;height:1px;background:linear-gradient(90deg,transparent, rgba(255,255,255,.12), transparent)
+  }
+  .hero:after,.feedBanner:after{
+    content:"";position:absolute;right:-32px;bottom:-50px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle, rgba(119,228,255,.18), transparent 65%)
+  }
   .heroRow,.row{display:flex;align-items:center;gap:10px}
-  .heroBadge{font-size:10px;color:#d7e7ff;padding:4px 8px;border-radius:999px;background:rgba(120,166,255,.16);border:1px solid rgba(120,166,255,.18)}
-  .statRow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-  .statBox{background:rgba(255,255,255,.03);border:1px solid rgba(150,190,255,.08);border-radius:16px;padding:10px 8px;text-align:center}
-  .statBox b{display:block;font-size:15px;margin-bottom:4px}
-  .sectionTitle{font-size:12px;color:var(--muted);margin:12px 4px 10px;letter-spacing:1px}
-  .card{
-    background:linear-gradient(180deg, rgba(16,22,38,.96), rgba(11,15,27,.96));
-    border:1px solid var(--line);border-radius:22px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  .heroMain{flex:1;min-width:0}
+  .heroTitle{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .heroTag{font-size:10px;padding:4px 8px;border-radius:999px;background:rgba(124,169,255,.16);border:1px solid rgba(124,169,255,.2);color:#d6e7ff}
+  .heroDesc{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+  .heroStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .heroStat{padding:10px 8px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(120,166,255,.08);text-align:center}
+  .heroStat b{display:block;font-size:15px;margin-bottom:4px}
+  .card,.sectionCard,.chatHead{border-radius:22px;padding:12px;margin-bottom:10px}
+  .sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:12px 4px 10px;gap:10px}
+  .sectionTitle span{font-size:12px;color:var(--muted);letter-spacing:1px}
+  .sectionBtn,.ghostBtn{height:30px;padding:0 10px;border-radius:12px;font-size:12px}
+  .ghostBtn{background:rgba(255,255,255,.04);border:1px solid rgba(120,166,255,.08)}
+  .listAvatar,.drawerAvatar,.profileAvatar{
+    position:relative;overflow:hidden;flex:0 0 auto;border:1px solid rgba(140,186,255,.2);display:grid;place-items:center;color:#fff;font-weight:700
   }
-  .card:before{content:"";position:absolute;left:0;top:0;right:0;height:1px;background:linear-gradient(90deg,transparent, rgba(255,255,255,.12), transparent)}
-  .listAvatar{
-    width:48px;height:48px;border-radius:16px;flex:0 0 auto;position:relative;overflow:hidden;border:1px solid rgba(141,184,255,.18);
-    background:linear-gradient(135deg,#1f2a45 0%, #253b72 50%, #1d2742 100%);
-    display:grid;place-items:center;font-size:15px;font-weight:700;color:#f7fbff;
-  }
-  .listAvatar:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.14),transparent 45%)}
+  .listAvatar{width:48px;height:48px;border-radius:16px;font-size:15px}
+  .drawerAvatar{width:56px;height:56px;border-radius:18px}
+  .profileAvatar{width:72px;height:72px;border-radius:24px}
+  .listAvatar span,.drawerAvatar span,.profileAvatar span,.avatarBtn span{position:relative;z-index:1}
   .name{font-size:15px;font-weight:700}
   .desc{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
-  .time{font-size:11px;color:#6f80ae;white-space:nowrap}
-  .badge{margin-left:auto;min-width:20px;padding:4px 7px;border-radius:999px;text-align:center;background:rgba(120,166,255,.18);border:1px solid rgba(120,166,255,.18);font-size:11px;color:#eaf2ff}
+  .time{font-size:11px;color:#6f84b7;white-space:nowrap}
+  .badge{margin-left:auto;min-width:20px;padding:4px 7px;border-radius:999px;text-align:center;background:rgba(124,169,255,.18);border:1px solid rgba(124,169,255,.18);font-size:11px;color:#eaf2ff}
+  .mutedLine{font-size:11px;color:var(--muted)}
   .subTabs{display:flex;gap:8px;overflow:auto;padding-bottom:2px;margin-bottom:10px}
-  .subChip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.03);border:1px solid rgba(150,190,255,.08);color:var(--muted);font-size:12px;white-space:nowrap}
-  .subChip.active{color:var(--text);background:var(--accent-soft);border-color:rgba(120,166,255,.22)}
-  .channelItem,.contactItem,.feedItem,.menuitem,.profileBlock,.chatHead{background:linear-gradient(180deg, rgba(16,22,38,.95), rgba(11,15,27,.95));border:1px solid var(--line);border-radius:20px}
-  .channelItem,.contactItem,.feedItem,.profileBlock{padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
-  .channelFlag{width:10px;height:10px;border-radius:3px;background:linear-gradient(180deg,var(--cyan),#5c8dff);box-shadow:0 0 12px rgba(118,227,255,.35)}
-  .channelItem.active{border-color:rgba(120,166,255,.26);background:linear-gradient(180deg, rgba(19,31,57,.96), rgba(11,17,29,.96))}
-  .feedMedia{margin-top:10px;height:140px;border-radius:18px;border:1px solid rgba(150,190,255,.08);background:linear-gradient(135deg, rgba(120,166,255,.22), rgba(118,227,255,.08) 45%, rgba(185,152,255,.12));position:relative;overflow:hidden}
-  .feedMedia:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 30%)}
-  .profileHero{padding:16px;border-radius:24px;background:linear-gradient(180deg, rgba(15,22,40,.98), rgba(9,13,24,.96));border:1px solid var(--line-strong);box-shadow:var(--shadow)}
-  .profileLarge{display:flex;align-items:center;gap:14px}
-  .profileAvatar{width:72px;height:72px;border-radius:24px;border:1px solid rgba(150,190,255,.18);background:linear-gradient(135deg,#6c7dff 0%,#7ce7ff 100%);position:relative}
-  .profileAvatar:after{content:"";position:absolute;inset:4px;border-radius:19px;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 45%)}
+  .subChip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.035);border:1px solid rgba(120,166,255,.08);font-size:12px;white-space:nowrap;color:var(--muted)}
+  .subChip.active{background:rgba(124,169,255,.16);border-color:rgba(124,169,255,.24);color:var(--text)}
+  .channelItem,.contactItem,.feedItem,.profileBlock,.menuitem,.quickItem{
+    background:linear-gradient(180deg, rgba(16,26,49,.96), rgba(11,18,34,.96));
+    border:1px solid rgba(120,166,255,.1);
+    border-radius:20px;
+  }
+  .channelItem,.contactItem,.feedItem,.profileBlock,.quickItem{padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .channelItem.active{border-color:rgba(124,169,255,.28);background:linear-gradient(180deg, rgba(20,34,64,.98), rgba(11,18,34,.98))}
+  .channelFlag{width:10px;height:10px;border-radius:3px;background:linear-gradient(180deg,var(--accent-2),#5c91ff);box-shadow:0 0 10px rgba(119,228,255,.35)}
+  .channelMeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .miniTag{font-size:10px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(120,166,255,.08);color:var(--muted)}
+  .feedBanner{border-radius:24px;padding:16px;margin-bottom:12px}
+  .feedBanner h3{margin:0 0 6px;font-size:18px}
+  .feedBanner p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+  .feedMedia{margin-top:10px;height:140px;border-radius:18px;border:1px solid rgba(120,166,255,.08);background:linear-gradient(135deg, rgba(124,169,255,.22), rgba(119,228,255,.08) 45%, rgba(255,211,111,.12));position:relative;overflow:hidden}
+  .feedMedia:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 32%)}
+  .profileRow{display:flex;align-items:center;gap:14px}
   .chipRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .chip{font-size:11px;padding:6px 10px;border-radius:999px;background:rgba(120,166,255,.1);border:1px solid rgba(120,166,255,.16);color:#d8e8ff}
-  .profileActions{display:flex;gap:8px;margin-top:12px}
-  .action{flex:1;height:38px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text)}
-  .action.primary{background:linear-gradient(135deg,#7ca7ff,#7ce7ff);color:#09111f;border:0;font-weight:700}
+  .chip{font-size:11px;padding:6px 10px;border-radius:999px;background:rgba(124,169,255,.1);border:1px solid rgba(124,169,255,.16);color:#dbe9ff}
+  .actionRow{display:flex;gap:8px;margin-top:12px}
+  .actionBtn{flex:1;height:38px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(120,166,255,.12)}
+  .actionBtn.primary{background:linear-gradient(135deg,#7ca9ff,#77e4ff);color:#0a1322;border:0;font-weight:700}
   .profileStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
-  .stat{background:rgba(255,255,255,.03);border:1px solid rgba(150,190,255,.08);border-radius:16px;padding:10px;text-align:center}
+  .stat{padding:10px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(120,166,255,.08);text-align:center}
   .stat b{display:block;font-size:16px}
   .profileBlock{padding:0}
-  .profileLine{padding:14px 12px;border-bottom:1px solid rgba(150,190,255,.08)}
+  .profileLine{padding:14px 12px;border-bottom:1px solid rgba(120,166,255,.08)}
   .profileLine:last-child{border-bottom:0}
-  .chatHead{padding:12px;margin-bottom:12px;box-shadow:var(--shadow)}
-  .chatbubble{max-width:82%;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(150,190,255,.08);margin:8px 0;font-size:13px;line-height:1.5}
-  .chatbubble.me{margin-left:auto;background:rgba(120,166,255,.16);border-color:rgba(120,166,255,.18)}
-  .sendbar{position:fixed;left:0;right:0;bottom:72px;padding:10px 12px;display:flex;gap:8px;background:linear-gradient(180deg, rgba(6,8,15,0), rgba(6,8,15,.92) 35%, rgba(6,8,15,.98))}
-  .input{flex:1;height:42px;border-radius:14px;border:1px solid var(--line);background:rgba(16,22,38,.95);padding:0 14px;color:var(--text)}
-  .tabs{position:fixed;left:0;right:0;bottom:0;height:72px;display:flex;padding:0 8px 8px;background:linear-gradient(180deg, rgba(8,11,20,.75), rgba(8,11,20,.98));backdrop-filter:blur(18px);border-top:1px solid rgba(150,190,255,.08);z-index:20}
-  .tab{flex:1;border:0;background:transparent;color:#7486b3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px}
-  .tab .dot{width:18px;height:4px;border-radius:999px;background:transparent}
+  .chatHead{padding:12px}
+  .chatbubble{max-width:82%;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(120,166,255,.08);margin:8px 0;font-size:13px;line-height:1.55}
+  .chatbubble.me{margin-left:auto;background:rgba(124,169,255,.16);border-color:rgba(124,169,255,.18)}
+  .sendbar{position:fixed;left:0;right:0;bottom:72px;padding:10px 12px;display:flex;gap:8px;background:linear-gradient(180deg, rgba(7,11,20,0), rgba(7,11,20,.92) 35%, rgba(7,11,20,.98))}
+  .input{flex:1;height:42px;border-radius:14px;border:1px solid rgba(120,166,255,.14);background:rgba(16,26,49,.96);color:var(--text);padding:0 14px;outline:none}
+  .input::placeholder{color:#7d91be}
+  .tabs{position:fixed;left:0;right:0;bottom:0;height:72px;padding:0 8px;background:rgba(7,11,20,.94);backdrop-filter:blur(14px);border-top:1px solid rgba(120,166,255,.08);display:flex;z-index:20}
+  .tab{flex:1;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;color:var(--muted)}
+  .dot{width:6px;height:6px;border-radius:50%;background:transparent}
   .tab.active{color:var(--text)}
-  .tab.active .dot{background:linear-gradient(90deg,var(--accent),var(--cyan))}
-  .drawerMask{position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;z-index:30}
-  .drawer{position:fixed;left:-86%;top:0;bottom:0;width:86%;max-width:330px;padding:18px 14px;background:linear-gradient(180deg, rgba(11,16,29,.98), rgba(7,10,19,.98));border-right:1px solid rgba(150,190,255,.12);z-index:31;transition:left .24s ease}
-  .drawer.open{left:0}
+  .tab.active .dot{background:var(--accent)}
+  .drawerMask{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;z-index:30}
   .drawerMask.open{display:block}
-  .drawerPanel{background:linear-gradient(180deg, rgba(15,22,40,.98), rgba(9,13,24,.96));border:1px solid var(--line);border-radius:24px;padding:14px;box-shadow:var(--shadow)}
-  .mehead{display:flex;align-items:center;gap:12px}
-  .meava{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#6c7dff 0%,#7ce7ff 100%);position:relative;border:1px solid rgba(150,190,255,.18)}
-  .meava:after{content:"";position:absolute;inset:4px;border-radius:13px;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 45%)}
-  .small{font-size:12px;color:var(--muted);margin-top:3px}
-  .menu{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-  .menuitem{padding:12px;color:var(--text);text-align:left;box-shadow:var(--shadow)}
+  .drawer{position:fixed;left:-84%;top:0;bottom:0;width:84%;max-width:320px;z-index:31;transition:left .22s ease}
+  .drawer.open{left:0}
+  .drawerInner{height:100%;padding:14px;background:linear-gradient(180deg,#10192e,#0b1120);border-right:1px solid rgba(120,166,255,.12)}
+  .drawerPanel{border-radius:24px;padding:14px;margin-bottom:12px}
+  .drawerName{font-size:16px;font-weight:700}
+  .drawerMeta{font-size:12px;color:var(--muted);margin-top:4px}
+  .drawerQuick{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+  .quickItem{padding:10px;border-radius:16px;text-align:left}
+  .quickItem b{display:block;font-size:13px;margin-bottom:4px}
+  .menu{display:flex;flex-direction:column;gap:8px}
+  .menuitem{padding:12px 14px;text-align:left;box-shadow:var(--shadow)}
+  .menuitem small{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+  .fab{position:fixed;right:14px;bottom:88px;width:48px;height:48px;border-radius:18px;display:none;z-index:18;font-size:20px}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="noise"></div>
+  <div class="grain"></div>
   <div class="shell">
     <div class="topbar">
-      <button class="avatar" id="avatarBtn" aria-label="侧边栏"></button>
-      <div class="titlebox">
+      <button class="avatarBtn" id="avatarBtn" aria-label="打开侧边栏"><span></span></button>
+      <div class="titleBox">
         <div class="title" id="pageTitle">消息</div>
-        <div class="sub" id="pageSub">浮岛群聊 · 浮岛式主界面</div>
+        <div class="sub" id="pageSub">浮岛群聊 · 原版风格主结构改版</div>
       </div>
-      <button class="btn" id="profileBtn">我</button>
+      <button class="topBtn" id="profileBtn">我</button>
     </div>
 
     <div class="main">
       <div class="page active" id="page-msg">
         <div class="hero">
-          <div class="heroRow" style="justify-content:space-between">
-            <div>
-              <div class="title" style="font-size:18px">浮岛群聊</div>
-              <div class="desc">保留原版气质的消息主页，重排为 QQ 式信息结构。</div>
+          <div class="heroRow">
+            <div class="listAvatar"><span>群</span></div>
+            <div class="heroMain">
+              <div class="heroTitle">浮岛消息 <span class="heroTag">3 条未读</span></div>
+              <div class="heroDesc">保留原版浮岛群聊的深色像素气质，把消息流提升为新的主入口。</div>
             </div>
-            <div class="heroBadge">ONLINE</div>
+            <button class="miniBtn">管理</button>
           </div>
-          <div class="statRow">
-            <div class="statBox"><b>12</b><span class="sub">群组</span></div>
-            <div class="statBox"><b>5</b><span class="sub">频道</span></div>
-            <div class="statBox"><b>29</b><span class="sub">未读</span></div>
+          <div class="heroStats">
+            <div class="heroStat"><b>12</b><span class="mutedLine">群聊</span></div>
+            <div class="heroStat"><b>5</b><span class="mutedLine">提醒</span></div>
+            <div class="heroStat"><b>28</b><span class="mutedLine">在线</span></div>
           </div>
         </div>
 
         <div class="subTabs">
-          <div class="subChip active">全部消息</div>
-          <div class="subChip">特别关注</div>
-          <div class="subChip">群通知</div>
-          <div class="subChip">临时会话</div>
+          <button class="subChip active">全部消息</button>
+          <button class="subChip">群通知</button>
+          <button class="subChip">特别关注</button>
+          <button class="subChip">禁言记录</button>
         </div>
 
-        <div class="card" data-open="chat">
+        <div class="card openChat">
           <div class="row">
-            <div class="listAvatar">木</div>
+            <div class="listAvatar"><span>木</span></div>
             <div style="min-width:0;flex:1">
-              <div class="row" style="justify-content:space-between;gap:8px"><div class="name">木子</div><div class="time">18:20</div></div>
-              <div class="desc">你：今天晚上还来群里吗？</div>
+              <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px">
+                <div style="min-width:0">
+                  <div class="name">木子</div>
+                  <div class="desc">你：今天晚上活动结束后去小频道聊？</div>
+                </div>
+                <div class="time">18:20</div>
+              </div>
             </div>
             <div class="badge">2</div>
           </div>
         </div>
+
         <div class="card">
           <div class="row">
-            <div class="listAvatar">通</div>
+            <div class="listAvatar"><span>通</span></div>
             <div style="min-width:0;flex:1">
-              <div class="row" style="justify-content:space-between;gap:8px"><div class="name">群通知</div><div class="time">17:05</div></div>
-              <div class="desc">今晚 9 点开始活动，记得签到。</div>
+              <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px">
+                <div style="min-width:0">
+                  <div class="name">群通知</div>
+                  <div class="desc">今晚 9 点开始活动，签到后自动发放称号经验。</div>
+                </div>
+                <div class="time">17:05</div>
+              </div>
             </div>
           </div>
         </div>
+
         <div class="card">
           <div class="row">
-            <div class="listAvatar">助</div>
+            <div class="listAvatar"><span>助</span></div>
             <div style="min-width:0;flex:1">
-              <div class="row" style="justify-content:space-between;gap:8px"><div class="name">浮岛小助手</div><div class="time">昨天</div></div>
-              <div class="desc">有人@了你：快来看新频道。</div>
+              <div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px">
+                <div style="min-width:0">
+                  <div class="name">浮岛小助手</div>
+                  <div class="desc">有人@了你：快去看看新开的活动频道。</div>
+                </div>
+                <div class="time">昨天</div>
+              </div>
             </div>
           </div>
         </div>
@@ -199,72 +246,138 @@
 
       <div class="page" id="page-channel">
         <div class="hero">
-          <div class="heroRow" style="justify-content:space-between">
-            <div>
-              <div class="title" style="font-size:18px">频道</div>
-              <div class="desc">沿用浮岛群聊原有深色层次，重做频道分区。</div>
+          <div class="heroTitle">频道分区 <span class="heroTag">QQ 式结构</span></div>
+          <div class="heroDesc">把原来分散的群内功能，整理成更清晰的频道层级，但视觉仍沿用浮岛群聊原本的材质和节奏。</div>
+        </div>
+
+        <div class="sectionTitle"><span>活跃频道</span><button class="sectionBtn">新建</button></div>
+
+        <div class="channelItem active">
+          <div class="row">
+            <div class="channelFlag"></div>
+            <div style="min-width:0;flex:1">
+              <div class="name"># 心动聊天局</div>
+              <div class="desc">主群实时聊天 · 28 人在线</div>
+              <div class="channelMeta"><span class="miniTag">热聊中</span><span class="miniTag">活动房间</span><span class="miniTag">全员可发言</span></div>
             </div>
-            <button class="miniBtn">管理</button>
+            <div class="badge">热</div>
           </div>
         </div>
-        <div class="channelItem active">
-          <div class="row"><div class="channelFlag"></div><div style="flex:1"><div class="name"># 心动聊天局</div><div class="desc">正在热聊 · 28 人在线</div></div><div class="time">LIVE</div></div>
-        </div>
+
         <div class="channelItem">
-          <div class="row"><div class="channelFlag" style="background:linear-gradient(180deg,#b998ff,#7ca7ff)"></div><div style="flex:1"><div class="name"># 角色讨论区</div><div class="desc">角色设定、关系走向与日常话题</div></div></div>
+          <div class="row">
+            <div class="channelFlag" style="background:linear-gradient(180deg,var(--gold),#ffb24d);box-shadow:0 0 10px rgba(255,211,111,.28)"></div>
+            <div style="min-width:0;flex:1">
+              <div class="name"># 活动公告</div>
+              <div class="desc">签到、排期、规则和奖励发放说明</div>
+              <div class="channelMeta"><span class="miniTag">仅管理发言</span><span class="miniTag">置顶</span></div>
+            </div>
+          </div>
         </div>
+
         <div class="channelItem">
-          <div class="row"><div class="channelFlag" style="background:linear-gradient(180deg,#7ce7ff,#58c4ff)"></div><div style="flex:1"><div class="name"># 活动公告</div><div class="desc">查看最新活动与签到说明</div></div></div>
+          <div class="row">
+            <div class="channelFlag" style="background:linear-gradient(180deg,var(--green),#49c98f);box-shadow:0 0 10px rgba(113,230,179,.28)"></div>
+            <div style="min-width:0;flex:1">
+              <div class="name"># 角色讨论区</div>
+              <div class="desc">角色设定、关系走向与群内日常碎聊</div>
+              <div class="channelMeta"><span class="miniTag">自由讨论</span><span class="miniTag">剧情延伸</span></div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="page" id="page-contacts">
         <div class="hero">
-          <div class="heroRow" style="justify-content:space-between">
-            <div>
-              <div class="title" style="font-size:18px">联系人</div>
-              <div class="desc">按原版视觉语气重排联系人入口。</div>
+          <div class="heroTitle">联系人</div>
+          <div class="heroDesc">保留原版的成员管理感，把角色、群管和常用联系人收进一个更像 QQ 的联系人页。</div>
+        </div>
+
+        <div class="sectionTitle"><span>常用联系人</span><button class="ghostBtn">排序</button></div>
+
+        <div class="contactItem openChat">
+          <div class="row">
+            <div class="listAvatar"><span>木</span></div>
+            <div style="min-width:0;flex:1">
+              <div class="name">木子</div>
+              <div class="desc">在线 · 单聊入口</div>
             </div>
-            <button class="miniBtn">筛选</button>
+            <div class="miniTag">好友</div>
           </div>
         </div>
-        <div class="contactItem"><div class="row"><div class="listAvatar">木</div><div><div class="name">木子</div><div class="desc">在线 · 单聊入口</div></div></div></div>
-        <div class="contactItem"><div class="row"><div class="listAvatar">小</div><div><div class="name">小助手</div><div class="desc">在线 · 群管与提示</div></div></div></div>
-        <div class="contactItem"><div class="row"><div class="listAvatar">管</div><div><div class="name">群管理员</div><div class="desc">忙碌 · 审核中</div></div></div></div>
+
+        <div class="contactItem">
+          <div class="row">
+            <div class="listAvatar"><span>助</span></div>
+            <div style="min-width:0;flex:1">
+              <div class="name">浮岛小助手</div>
+              <div class="desc">在线 · 群管与提示</div>
+            </div>
+            <div class="miniTag">助手</div>
+          </div>
+        </div>
+
+        <div class="contactItem">
+          <div class="row">
+            <div class="listAvatar"><span>管</span></div>
+            <div style="min-width:0;flex:1">
+              <div class="name">群管理员</div>
+              <div class="desc">忙碌 · 审核中</div>
+            </div>
+            <div class="miniTag">管理</div>
+          </div>
+        </div>
       </div>
 
       <div class="page" id="page-feed">
-        <div class="hero">
-          <div class="heroRow" style="justify-content:space-between">
-            <div>
-              <div class="title" style="font-size:18px">动态</div>
-              <div class="desc">把原版浮岛气质延伸到动态流，而不是另起一套社交 UI。</div>
-            </div>
-            <button class="miniBtn">发布</button>
-          </div>
+        <div class="feedBanner">
+          <h3>浮岛动态</h3>
+          <p>像 QQ 动态那样集中展示群内分享、收藏和活动记录，但保持原版浮岛群聊的深色面板和冷色发光细节。</p>
         </div>
+
         <div class="feedItem">
-          <div class="row"><div class="listAvatar">木</div><div style="flex:1"><div class="name">木子</div><div class="desc">今天的晚霞很好看，拍下来发给大家。</div></div><div class="time">刚刚</div></div>
+          <div class="row">
+            <div class="listAvatar"><span>木</span></div>
+            <div style="min-width:0;flex:1">
+              <div class="name">木子</div>
+              <div class="desc">今天的晚霞很好看，拍下来发给大家。</div>
+            </div>
+            <div class="time">刚刚</div>
+          </div>
           <div class="feedMedia"></div>
         </div>
+
         <div class="feedItem">
-          <div class="row"><div class="listAvatar">你</div><div style="flex:1"><div class="name">你</div><div class="desc">收藏了 2 张表情包。</div></div><div class="time">1 小时前</div></div>
+          <div class="row">
+            <div class="listAvatar"><span>你</span></div>
+            <div style="min-width:0;flex:1">
+              <div class="name">你</div>
+              <div class="desc">收藏了 2 张表情包。</div>
+            </div>
+            <div class="time">1 小时前</div>
+          </div>
         </div>
       </div>
 
       <div class="page" id="page-profile">
-        <div class="profileHero">
-          <div class="profileLarge">
-            <div class="profileAvatar"></div>
-            <div style="flex:1;min-width:0">
-              <div class="name" style="font-size:18px">你的头像</div>
+        <div class="profilePanel">
+          <div class="profileRow">
+            <div class="profileAvatar"><span></span></div>
+            <div style="min-width:0;flex:1">
+              <div class="name">你的头像</div>
               <div class="desc">浮岛群聊个人主页</div>
-              <div class="chipRow"><span class="chip">浮岛风格</span><span class="chip">群聊管理</span><span class="chip">关系网络</span></div>
+              <div class="chipRow"><span class="chip">原版浮岛风</span><span class="chip">群聊管理</span><span class="chip">关系网络</span></div>
             </div>
           </div>
-          <div class="profileActions"><button class="action primary">编辑资料</button><button class="action">切换状态</button></div>
+          <div class="actionRow"><button class="actionBtn primary">编辑资料</button><button class="actionBtn">切换状态</button></div>
         </div>
-        <div class="profileStats"><div class="stat"><b>12</b><span class="sub">群聊</span></div><div class="stat"><b>86</b><span class="sub">好友</span></div><div class="stat"><b>24</b><span class="sub">动态</span></div></div>
+
+        <div class="profileStats">
+          <div class="stat"><b>12</b><span class="mutedLine">群聊</span></div>
+          <div class="stat"><b>86</b><span class="mutedLine">好友</span></div>
+          <div class="stat"><b>24</b><span class="mutedLine">动态</span></div>
+        </div>
+
         <div class="profileBlock">
           <div class="profileLine">资料卡</div>
           <div class="profileLine">我的收藏</div>
@@ -274,17 +387,25 @@
 
       <div class="page" id="page-chat">
         <div class="chatHead">
-          <div class="row"><div class="listAvatar">木</div><div><div class="name">木子</div><div class="desc">在线 · 消息详情页</div></div></div>
+          <div class="row">
+            <div class="listAvatar"><span>木</span></div>
+            <div>
+              <div class="name">木子</div>
+              <div class="desc">在线 · 消息详情页</div>
+            </div>
+          </div>
         </div>
-        <div class="chatbubble">你：今天晚上还来群里吗？</div>
-        <div class="chatbubble me">木子：来呀，我刚好有空。</div>
+        <div class="chatbubble">你：今天晚上活动结束后去小频道聊？</div>
+        <div class="chatbubble me">木子：来呀，我刚好有空，到时候喊我。</div>
         <div class="chatbubble">你：那我等你。</div>
       </div>
     </div>
 
+    <button class="fab" id="fab">＋</button>
+
     <div class="sendbar" id="sendBar" style="display:none">
       <input class="input" placeholder="输入消息..." />
-      <button class="btn">发</button>
+      <button class="topBtn">发</button>
     </div>
 
     <div class="tabs">
@@ -296,36 +417,70 @@
 
     <div class="drawerMask" id="mask"></div>
     <aside class="drawer" id="drawer">
-      <div class="drawerPanel">
-        <div class="mehead"><div class="meava"></div><div><div class="name">你的头像</div><div class="small">点这里进入个人主页</div></div></div>
-      </div>
-      <div class="menu">
-        <button class="menuitem" data-open="profile">个人主页</button>
-        <button class="menuitem" data-open="msg">消息</button>
-        <button class="menuitem" data-open="channel">频道</button>
-        <button class="menuitem" data-open="contacts">联系人</button>
-        <button class="menuitem" data-open="feed">动态</button>
-        <button class="menuitem" data-open="chat">聊天详情页</button>
+      <div class="drawerInner">
+        <div class="drawerPanel" id="drawerProfileCard">
+          <div class="row">
+            <div class="drawerAvatar"><span></span></div>
+            <div style="min-width:0;flex:1">
+              <div class="drawerName">你的头像</div>
+              <div class="drawerMeta">点这里进入个人主页</div>
+            </div>
+          </div>
+          <div class="drawerQuick">
+            <button class="quickItem"><b>12 个群</b><span class="mutedLine">管理中的群聊</span></button>
+            <button class="quickItem"><b>5 条提醒</b><span class="mutedLine">待处理通知</span></button>
+          </div>
+        </div>
+
+        <div class="menu">
+          <button class="menuitem" data-open="profile">个人主页<small>查看资料、收藏与设置</small></button>
+          <button class="menuitem" data-open="msg">消息<small>最近会话与通知</small></button>
+          <button class="menuitem" data-open="channel">频道<small>按分区查看群内内容</small></button>
+          <button class="menuitem" data-open="contacts">联系人<small>角色、群管与好友列表</small></button>
+          <button class="menuitem" data-open="feed">动态<small>群内分享与活动记录</small></button>
+          <button class="menuitem" data-open="chat">聊天详情页<small>保留原单聊页作消息详情</small></button>
+        </div>
       </div>
     </aside>
   </div>
 </div>
 <script>
 const pages={msg:'page-msg',channel:'page-channel',contacts:'page-contacts',feed:'page-feed',profile:'page-profile',chat:'page-chat'};
-const titles={msg:['消息','浮岛群聊 · 浮岛式主界面'],channel:['频道','按原版气质重排频道结构'],contacts:['联系人','沿用原版风格的联系人列表'],feed:['动态','浮岛式动态流'],profile:['个人主页','你的资料'],chat:['聊天','单聊详情页']};
+const titles={
+  msg:['消息','浮岛群聊 · 原版风格主结构改版'],
+  channel:['频道','按 QQ 结构重排的群内分区'],
+  contacts:['联系人','原版浮岛风格的联系人页'],
+  feed:['动态','群内分享与活动记录'],
+  profile:['个人主页','你的资料'],
+  chat:['聊天','单聊详情页']
+};
 const tabs=[...document.querySelectorAll('.tab')];
 const pageTitle=document.getElementById('pageTitle');
 const pageSub=document.getElementById('pageSub');
 const sendBar=document.getElementById('sendBar');
-function show(name){Object.values(pages).forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(pages[name]).classList.add('active');tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===name));pageTitle.textContent=titles[name][0];pageSub.textContent=titles[name][1];sendBar.style.display=name==='chat'?'flex':'none';}
-tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
+const fab=document.getElementById('fab');
 const drawer=document.getElementById('drawer');
 const mask=document.getElementById('mask');
+function closeDrawer(){drawer.classList.remove('open');mask.classList.remove('open');}
+function show(name){
+  Object.values(pages).forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(pages[name]).classList.add('active');
+  tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  pageTitle.textContent=titles[name][0];
+  pageSub.textContent=titles[name][1];
+  sendBar.style.display=name==='chat'?'flex':'none';
+  fab.style.display=name==='chat'||name==='profile'?'none':'grid';
+  closeDrawer();
+}
+
+tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
 document.getElementById('avatarBtn').onclick=()=>{drawer.classList.add('open');mask.classList.add('open');};
 document.getElementById('profileBtn').onclick=()=>show('profile');
-mask.onclick=()=>{drawer.classList.remove('open');mask.classList.remove('open');};
-document.querySelectorAll('.menuitem').forEach(b=>b.onclick=()=>{show(b.dataset.open);drawer.classList.remove('open');mask.classList.remove('open');});
-document.querySelector('[data-open="chat"]').onclick=()=>show('chat');
+document.getElementById('drawerProfileCard').onclick=()=>show('profile');
+mask.onclick=closeDrawer;
+document.querySelectorAll('.menuitem').forEach(b=>b.onclick=()=>show(b.dataset.open));
+document.querySelectorAll('.openChat').forEach(el=>el.onclick=()=>show('chat'));
+show('msg');
 </script>
 </body>
 </html>
